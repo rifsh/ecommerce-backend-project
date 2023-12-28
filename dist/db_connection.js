@@ -33,7 +33,7 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config({ path: path_1.default.join(__dirname, '../config.env') });
 function connection() {
     mongoose_1.default.connect(process.env.DATABASE_UR, {
-    // dbName:'usermodels'
+        dbName: 'User'
     })
         .then((conn) => {
         console.log('connected successfully');

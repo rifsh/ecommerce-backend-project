@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response, request } from 'express';
 import * as dotenv from 'dotenv';
 import path from 'path'
 import { Users } from '../models/user/usermodel';
@@ -9,107 +9,21 @@ import catchAsync from '../utils/asyncHandler';
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
 import { customeError } from '../utils/customerror';
 import tokenInterface from '../models/interfaces/user_interfaces/tokeninterface';
+import { userSrvc } from '../services/user/auth-controller';
 
-dotenv.config({ path: path.join(__dirname,'../../config.env')});
+dotenv.config({ path: path.join(__dirname, '../../config.env') });
 
-
-//JWT_token
-let userToken = (id): string => {
-    return jwt.sign({ id: id }, process.env.jwt_string, {
-        expiresIn: 30000000
-    })
+const signUp = async (req: Request, res: Response, next: NextFunction) => {
+    userSrvc.signUp(req, res, next);
 }
-
-
-const signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const newUser = await Users.create(req.body);
-    const token = userToken(newUser._id)
-    res.status(200).json({
-        status: "Success",
-        token,
-        data: {
-            user: newUser
-        }
-    })
-})
 const logIn = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const usrname = req.body.usrname;
-    const password = req.body.password;
-    if (!usrname || !password) {
-        const err = new customeError(`Please provide a Username and password`, 404);
-        return next(err);
-    }
-    const logedUser = await Users.findOne({ usrname }).select('+password');
-
-
-    if (!logedUser || !await logedUser.comparePassword(password, logedUser.password)) {
-        const error = new customeError('Incorrect username or password', 404);
-        return next(error);
-    }
-
-    const token = userToken(logedUser._id)
-
-    res.status(200).json({
-        status: "Valid",
-        token,
-        // datas: {
-        //     user: logedUser
-        // },
-    })
-})
-const productById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const products = await producModel.findById(req.params.id);
-    if (!products) {
-        next(new customeError(`Product not found with id ${req.params.id}`, 401))
-    }
-    res.status(200).json({
-        status: "Found",
-        products
-    })
-
+    userSrvc.logIn(req, res, next)
 })
 const addToCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.body.productId;
-    const userId = req.params.id;
-    const prodcut = await producModel.findById(productId);
-    const existingUser = await CartModel.findOne({ userId: userId });
-    const existingProduct = await CartModel.findOne({ userId: userId, products: productId });
-    console.log(existingProduct);
-
-
-
-    if (existingUser && !existingProduct) {
-        existingUser.products.push(productId);
-        await existingUser.save();
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        })
-    } else if (!existingUser) {
-        //New user
-        const addingCart = await CartModel.create({ userId: userId, products: [productId] });
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        })
-    } else if (existingProduct) {
-        next(new customeError('product is already in cart', 404))
-    }
+    userSrvc.addToCart(req, res, next)
 })
 const viewCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const viewCart = await CartModel.findOne({ userId: req.params.id });
-    // const products = await producModel.findById(viewCart.products);
-    console.log(viewCart);
-
-    res.status(200).json({
-        status: "OK",
-        datas: {
-            products: viewCart
-        }
-    })
-
-
-
+    userSrvc.viewCart(req,res,next)
 })
 const protectRoute = catchAsync(async (req: Request, res: Response, next) => {
     //Reading the token and check if it exist
@@ -125,12 +39,17 @@ const protectRoute = catchAsync(async (req: Request, res: Response, next) => {
     }
 
     //Validate the token
-    const tokenDecode: tokenInterface |string | JwtPayload = await jwt.verify(token, 'asd-qwe-asd-qwe');
-    console.log(tokenDecode);
-    
+    const tokenDecode: tokenInterface | String | JwtPayload = await jwt.verify(token, process.env.jwt_string);
+    let decodeId: string;
+    for (const key in tokenDecode) {
+        if (key === 'id') {
+            decodeId = tokenDecode[key]
+        }
+
+    }
     //If the user exist
-    const user = await Users.findById(tokenDecode.id);
-    
+    const user = await Users.findById(decodeId);
+
     if (!user) {
         next(new customeError('User is not present', 401));
     }
@@ -175,7 +94,7 @@ const viewWishlist = catchAsync(async (req: Request, res: Response, next) => {
         res.status(200).json({
             wishlist
         })
-    }else{
+    } else {
         next(new customeError(`User not found with id${userId}`, 404));
     }
 
@@ -183,9 +102,9 @@ const viewWishlist = catchAsync(async (req: Request, res: Response, next) => {
 const deleteWishlistprdct = catchAsync(async (req: Request, res: Response, next) => {
     const id: string = req.params.id;
     const prodcutId = req.body.productId;
-    const productFinding = await wishListModel.findOne({userId: id ,wishlistedproducts: prodcutId });
+    const productFinding = await wishListModel.findOne({ userId: id, wishlistedproducts: prodcutId });
     const checkUser = await wishListModel.findOne({ userId: id });
-    
+
     if (checkUser && productFinding) {
         const index = await checkUser.wishlistedproducts.indexOf(prodcutId);
         await checkUser.wishlistedproducts.splice(index, 1);
@@ -209,6 +128,5 @@ export const userControllers = {
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
-    productById,
     protectRoute
 } 

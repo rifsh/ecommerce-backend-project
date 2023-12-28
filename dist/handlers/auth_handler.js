@@ -40,97 +40,23 @@ const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const usermodel_1 = require("../models/user/usermodel");
 const productsmodel_1 = require("../models/productsmodel");
-const cartModel_1 = require("../models/user/cartModel");
 const wishlistModel_1 = require("../models/user/wishlistModel");
 const asyncHandler_1 = __importDefault(require("../utils/asyncHandler"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../utils/customerror");
+const auth_controller_1 = require("../services/user/auth-controller");
 dotenv.config({ path: path_1.default.join(__dirname, '../../config.env') });
-//JWT_token
-let userToken = (id) => {
-    return jsonwebtoken_1.default.sign({ id: id }, process.env.jwt_string, {
-        expiresIn: 30000000
-    });
-};
-const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUser = yield usermodel_1.Users.create(req.body);
-    const token = userToken(newUser._id);
-    res.status(200).json({
-        status: "Success",
-        token,
-        data: {
-            user: newUser
-        }
-    });
-}));
+const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    auth_controller_1.userSrvc.signUp(req, res, next);
+});
 const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const usrname = req.body.usrname;
-    const password = req.body.password;
-    if (!usrname || !password) {
-        const err = new customerror_1.customeError(`Please provide a Username and password`, 404);
-        return next(err);
-    }
-    const logedUser = yield usermodel_1.Users.findOne({ usrname }).select('+password');
-    if (!logedUser || !(yield logedUser.comparePassword(password, logedUser.password))) {
-        const error = new customerror_1.customeError('Incorrect username or password', 404);
-        return next(error);
-    }
-    const token = userToken(logedUser._id);
-    res.status(200).json({
-        status: "Valid",
-        token,
-        // datas: {
-        //     user: logedUser
-        // },
-    });
-}));
-const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const products = yield productsmodel_1.producModel.findById(req.params.id);
-    if (!products) {
-        next(new customerror_1.customeError(`Product not found with id ${req.params.id}`, 401));
-    }
-    res.status(200).json({
-        status: "Found",
-        products
-    });
+    auth_controller_1.userSrvc.logIn(req, res, next);
 }));
 const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const productId = req.body.productId;
-    const userId = req.params.id;
-    const prodcut = yield productsmodel_1.producModel.findById(productId);
-    const existingUser = yield cartModel_1.CartModel.findOne({ userId: userId });
-    const existingProduct = yield cartModel_1.CartModel.findOne({ userId: userId, products: productId });
-    console.log(existingProduct);
-    if (existingUser && !existingProduct) {
-        existingUser.products.push(productId);
-        yield existingUser.save();
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        });
-    }
-    else if (!existingUser) {
-        //New user
-        const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId] });
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        });
-    }
-    else if (existingProduct) {
-        next(new customerror_1.customeError('product is already in cart', 404));
-    }
+    auth_controller_1.userSrvc.addToCart(req, res, next);
 }));
 const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const viewCart = yield cartModel_1.CartModel.findOne({ userId: req.params.id });
-    // const products = await producModel.findById(viewCart.products);
-    console.log(viewCart);
-    res.status(200).json({
-        status: "OK",
-        datas: {
-            products: viewCart
-        }
-    });
+    auth_controller_1.userSrvc.viewCart(req, res, next);
 }));
 const protectRoute = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //Reading the token and check if it exist
@@ -144,10 +70,15 @@ const protectRoute = (0, asyncHandler_1.default)((req, res, next) => __awaiter(v
         next(new customerror_1.customeError('You are not logged in !!', 402));
     }
     //Validate the token
-    const tokenDecode = yield jsonwebtoken_1.default.verify(token, 'asd-qwe-asd-qwe');
-    console.log(tokenDecode);
+    const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
+    let decodeId;
+    for (const key in tokenDecode) {
+        if (key === 'id') {
+            decodeId = tokenDecode[key];
+        }
+    }
     //If the user exist
-    const user = yield usermodel_1.Users.findById(tokenDecode.id);
+    const user = yield usermodel_1.Users.findById(decodeId);
     if (!user) {
         next(new customerror_1.customeError('User is not present', 401));
     }
@@ -221,6 +152,5 @@ exports.userControllers = {
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
-    productById,
     protectRoute
 };

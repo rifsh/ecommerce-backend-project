@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { producModel } from "../models/productsmodel";
 import catchAsync from "../utils/asyncHandler";
+import { userSrvc } from "../services/user/auth-controller";
 
 export const add_product = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const addedProducts: Product[] = [];
@@ -15,24 +16,8 @@ export const add_product = catchAsync(async (req: Request, res: Response, next: 
 
 
 export const get_product = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    let products: Product[] = [];
-    products = await producModel.find({});
-    res.status(200).json({
-        status:"OK",
-        total_Products: products.length,
-        datas:{
-            products
-        }
-    })
+    userSrvc.products(req,res,next)
 })
 export const get_product_Byid = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    let products: Product[] = [];
-    products = await producModel.findById(req.params.id);
-    res.status(200).json({
-        status:"OK",
-        total_Products: products.length,
-        datas:{
-            products
-        }
-    })
+    userSrvc.productById(req,res,next)
 })
