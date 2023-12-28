@@ -1,8 +1,6 @@
-import { NextFunction } from 'express';
 import mongoose from 'mongoose';
 import validator from 'validator';
-import bcrpt from 'bcryptjs'
-import { promises } from 'dns';
+import bcrpt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema<userInterface>({
     name: {

@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
+import path from 'path'
+import * as dotenv from 'dotenv';
+dotenv.config({path: path.join(__dirname,'../config.env')});
+
 
 export function connection() {
-    mongoose.connect('mongodb+srv://rifshmuhammed:1cijhAanIjgYUcvL@cluster0.9ik2otk.mongodb.net/users?retryWrites=true&w=majority', {
+    mongoose.connect(process.env.DATABASE_UR, {
         // dbName:'usermodels'
     })
         .then((conn) => {
@@ -11,4 +15,3 @@ export function connection() {
 
         })
 }
-

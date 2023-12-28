@@ -1,6 +1,5 @@
 import exp, {Express, NextFunction, Request, Response} from 'express';
-import {router} from './routers/userRouter'
-import { error } from 'console';
+import {router} from './routers/userRouter';
 import { customeError } from './utils/customerror';
 import { errorHandler } from './handlers/errormiddlaware';
 

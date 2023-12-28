@@ -11,7 +11,8 @@ function required(result) {
 const productSchema = new mongoose_1.default.Schema({
     title: {
         type: String,
-        required: [true, required('Title')]
+        required: [true, required('Title')],
+        unique: true
     },
     description: {
         type: String,
@@ -30,4 +31,4 @@ const productSchema = new mongoose_1.default.Schema({
         required: [true, required('Category')]
     }
 });
-exports.producModel = mongoose_1.default.model('productdetial', productSchema);
+exports.producModel = mongoose_1.default.model('productdetail', productSchema);

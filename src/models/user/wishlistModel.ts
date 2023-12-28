@@ -1,0 +1,15 @@
+import mongoose from 'mongoose';
+import wishlistInterface from '../interfaces/user_interfaces/wishlist_model';
+
+const wishListSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId
+    },
+    wishlistedproducts: [{
+        type: mongoose.Schema.Types.ObjectId,
+        required: [true, 'Please enter a valid productId']
+    }]
+
+})
+
+export const wishListModel = mongoose.model<wishlistInterface>('wishlist', wishListSchema);

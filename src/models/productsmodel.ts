@@ -7,7 +7,8 @@ function required(result: string): string {
 const productSchema = new mongoose.Schema<Product>({
     title:{
         type: String,
-        required: [true, required('Title')]
+        required: [true, required('Title')],
+        unique: true
     },
     description:{
         type: String,
@@ -27,4 +28,4 @@ const productSchema = new mongoose.Schema<Product>({
     }
 })
 
-export const producModel = mongoose.model('productdetial', productSchema);
+export const producModel = mongoose.model('productdetail', productSchema);
