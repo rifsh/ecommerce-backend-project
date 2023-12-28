@@ -1,6 +1,6 @@
 import exp from 'express';
 import {userControllers} from '../handlers/auth_handler';
-import {add_product, get_product, get_product_Byid} from '../handlers/product_hndler';
+import {add_product, get_product, get_product_Byid, productCategory} from '../handlers/product_hndler';
 
 
 
@@ -17,4 +17,5 @@ router.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
 
 //products_router
 router.route('/products').get(userControllers.protectRoute,get_product).post(add_product);
-router.route('/products_Id/:id').get(userControllers.protectRoute,get_product_Byid)
+router.route('/:id/category').get(productCategory);
+router.route('/products_Id/:id').get(userControllers.protectRoute,get_product_Byid);

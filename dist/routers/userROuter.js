@@ -18,4 +18,5 @@ exports.router.route('/:id/wishlist').get(auth_handler_1.userControllers.viewWis
 exports.router.route('/:id/deletewishlist').post(auth_handler_1.userControllers.deleteWishlistprdct);
 //products_router
 exports.router.route('/products').get(auth_handler_1.userControllers.protectRoute, product_hndler_1.get_product).post(product_hndler_1.add_product);
+exports.router.route('/:id/category').get(product_hndler_1.productCategory);
 exports.router.route('/products_Id/:id').get(auth_handler_1.userControllers.protectRoute, product_hndler_1.get_product_Byid);

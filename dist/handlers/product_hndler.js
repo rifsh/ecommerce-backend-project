@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get_product_Byid = exports.get_product = exports.add_product = void 0;
+exports.get_product_Byid = exports.productCategory = exports.get_product = exports.add_product = void 0;
 const productsmodel_1 = require("../models/productsmodel");
 const asyncHandler_1 = __importDefault(require("../utils/asyncHandler"));
 const auth_controller_1 = require("../services/user/auth-controller");
@@ -28,6 +28,9 @@ exports.add_product = (0, asyncHandler_1.default)((req, res, next) => __awaiter(
 }));
 exports.get_product = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.products(req, res, next);
+}));
+exports.productCategory = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    auth_controller_1.userSrvc.productByCategory(req, res, next);
 }));
 exports.get_product_Byid = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.productById(req, res, next);

@@ -18,6 +18,9 @@ export const add_product = catchAsync(async (req: Request, res: Response, next: 
 export const get_product = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     userSrvc.products(req,res,next)
 })
+export const productCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    userSrvc.productByCategory(req,res,next)
+})
 export const get_product_Byid = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     userSrvc.productById(req,res,next)
 })

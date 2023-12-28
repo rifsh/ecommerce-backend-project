@@ -6,6 +6,7 @@ import mongoose, { Mongoose, MongooseBulkWriteOptions, MongooseDocumentMiddlewar
 import { customeError } from "../../utils/customerror";
 import { producModel } from "../../models/productsmodel";
 import { CartModel } from "../../models/user/cartModel";
+import { wishListModel } from "../../models/user/wishlistModel";
 
 
 
@@ -65,6 +66,13 @@ const products = catchAsync(async (req: Request, res: Response, next: NextFuncti
         }
     })
 })
+const productByCategory = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const category = req.params.id;
+    const categorizedProduts = await producModel.findOne({category:category});
+    console.log(categorizedProduts);
+    
+    
+})
 const productById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let products: Product[] = [];
     products = await producModel.findById(req.params.id);
@@ -79,14 +87,11 @@ const productById = catchAsync(async (req: Request, res: Response, next: NextFun
 const addToCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.body.productId;
     const userId = req.params.id;
-    const prodcut = await producModel.findById(productId);
+    const product = await producModel.findById(productId);
     const existingUser = await CartModel.findOne({ userId: userId });
     const existingProduct = await CartModel.findOne({ userId: userId, products: productId });
-    console.log(existingProduct);
 
-
-
-    if (existingUser || !existingProduct) {
+    if (existingUser && !existingProduct) {
         existingUser.products.push(productId);
         await existingUser.save();
         res.status(200).json({
@@ -116,6 +121,65 @@ const viewCart = catchAsync(async (req: Request, res: Response, next: NextFuncti
         }
     })
 })
+const addToWishList = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const productId = req.body.productId;
+    const userId = req.params.id;
+    const prodcut = await producModel.findById(productId);
+    const existingUser = await wishListModel.findOne({ userId: userId });
+    const existingProduct = await wishListModel.findOne({ userId: userId, wishlistedproducts: productId });
+
+    if (existingUser && !existingProduct) {
+        existingUser.wishlistedproducts.push(productId);
+        await existingUser.save();
+        res.status(200).json({
+            status: "Success",
+            message: "Your product is added to Wishlist"
+        })
+    } else if (!existingUser) {
+        //New user
+        const addingCart = await wishListModel.create({ userId: userId, wishlistedproducts: [productId] });
+        res.status(200).json({
+            status: "Success",
+            message: "Your product is added to Wishlist"
+        })
+    } else if (existingProduct) {
+        next(new customeError('product is already in Wishlist', 404))
+    }
+})
+const viewWishList = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    const wishlist = await wishListModel.findOne({ userId });
+
+    if (wishlist) {
+        res.status(200).json({
+            wishlist
+        })
+    } else {
+        next(new customeError(`User not found with id${userId}`, 404));
+    }
+
+})
+const deleteWishList = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const id: string = req.params.id;
+    const prodcutId = req.body.productId;
+    const productFinding = await wishListModel.findOne({ userId: id, wishlistedproducts: prodcutId });
+    const checkUser = await wishListModel.findOne({ userId: id });
+
+    if (checkUser && productFinding) {
+        const index = await checkUser.wishlistedproducts.indexOf(prodcutId);
+        await checkUser.wishlistedproducts.splice(index, 1);
+        await checkUser.save();
+        res.status(200).json({
+            status: "Success"
+        })
+    }
+    else if (!productFinding) {
+        next(new customeError(`Product not found with id ${prodcutId}`, 404));
+    }
+    else if (!checkUser) {
+        next(new customeError(`User not found with id ${id}`, 404));
+    }
+})
 
 
 
@@ -126,7 +190,11 @@ export const userSrvc = {
     signUp,
     logIn,
     products,
+    productByCategory,
     productById,
     addToCart,
-    viewCart
+    viewCart,
+    addToWishList,
+    viewWishList,
+    deleteWishList
 }

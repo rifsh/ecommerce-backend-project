@@ -39,8 +39,6 @@ exports.userControllers = void 0;
 const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const usermodel_1 = require("../models/user/usermodel");
-const productsmodel_1 = require("../models/productsmodel");
-const wishlistModel_1 = require("../models/user/wishlistModel");
 const asyncHandler_1 = __importDefault(require("../utils/asyncHandler"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../utils/customerror");
@@ -87,62 +85,13 @@ const protectRoute = (0, asyncHandler_1.default)((req, res, next) => __awaiter(v
     next();
 }));
 const addWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const productId = req.body.productId;
-    const userId = req.params.id;
-    const prodcut = yield productsmodel_1.producModel.findById(productId);
-    const existingUser = yield wishlistModel_1.wishListModel.findOne({ userId: userId });
-    const existingProduct = yield wishlistModel_1.wishListModel.findOne({ userId: userId, wishlistedproducts: productId });
-    if (existingUser && !existingProduct) {
-        existingUser.wishlistedproducts.push(productId);
-        yield existingUser.save();
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to Wishlist"
-        });
-    }
-    else if (!existingUser) {
-        //New user
-        const addingCart = yield wishlistModel_1.wishListModel.create({ userId: userId, wishlistedproducts: [productId] });
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to Wishlist"
-        });
-    }
-    else if (existingProduct) {
-        next(new customerror_1.customeError('product is already in Wishlist', 404));
-    }
+    auth_controller_1.userSrvc.addToWishList(req, res, next);
 }));
 const viewWishlist = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
-    const wishlist = yield wishlistModel_1.wishListModel.findOne({ userId });
-    if (wishlist) {
-        res.status(200).json({
-            wishlist
-        });
-    }
-    else {
-        next(new customerror_1.customeError(`User not found with id${userId}`, 404));
-    }
+    auth_controller_1.userSrvc.viewWishList(req, res, next);
 }));
 const deleteWishlistprdct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const prodcutId = req.body.productId;
-    const productFinding = yield wishlistModel_1.wishListModel.findOne({ userId: id, wishlistedproducts: prodcutId });
-    const checkUser = yield wishlistModel_1.wishListModel.findOne({ userId: id });
-    if (checkUser && productFinding) {
-        const index = yield checkUser.wishlistedproducts.indexOf(prodcutId);
-        yield checkUser.wishlistedproducts.splice(index, 1);
-        yield checkUser.save();
-        res.status(200).json({
-            status: "Success"
-        });
-    }
-    else if (!productFinding) {
-        next(new customerror_1.customeError(`Product not found with id ${prodcutId}`, 404));
-    }
-    else if (!checkUser) {
-        next(new customerror_1.customeError(`User not found with id ${id}`, 404));
-    }
+    auth_controller_1.userSrvc.deleteWishList(req, res, next);
 }));
 exports.userControllers = {
     signUp,
