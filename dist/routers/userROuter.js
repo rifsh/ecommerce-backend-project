@@ -3,20 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.router = void 0;
+exports.userRouter = void 0;
 const express_1 = __importDefault(require("express"));
-const auth_handler_1 = require("../handlers/auth_handler");
-const product_hndler_1 = require("../handlers/product_hndler");
-exports.router = express_1.default.Router();
+const auth_handler_1 = require("../handlers/user/auth_handler");
+exports.userRouter = express_1.default.Router();
 //user_router
-exports.router.route('/signup').post(auth_handler_1.userControllers.signUp);
-exports.router.route('/login').post(auth_handler_1.userControllers.logIn);
-exports.router.route('/:id/cart').post(auth_handler_1.userControllers.addToCart);
-exports.router.route('/:id/cart').get(auth_handler_1.userControllers.viewCart);
-exports.router.route('/:id/wishlist').post(auth_handler_1.userControllers.addWishList);
-exports.router.route('/:id/wishlist').get(auth_handler_1.userControllers.viewWishlist);
-exports.router.route('/:id/deletewishlist').post(auth_handler_1.userControllers.deleteWishlistprdct);
+exports.userRouter.route('/signup').post(auth_handler_1.userControllers.signUp);
+exports.userRouter.route('/login').post(auth_handler_1.userControllers.logIn);
+exports.userRouter.route('/:id/cart').post(auth_handler_1.userControllers.addToCart);
+exports.userRouter.route('/:id/cart').get(auth_handler_1.userControllers.viewCart);
+exports.userRouter.route('/:id/wishlist').post(auth_handler_1.userControllers.addWishList);
+exports.userRouter.route('/:id/wishlist').get(auth_handler_1.userControllers.viewWishlist);
+exports.userRouter.route('/:id/deletewishlist').post(auth_handler_1.userControllers.deleteWishlistprdct);
+exports.userRouter.route('/:id/addtoorder').post(auth_handler_1.userControllers.addToOrder);
 //products_router
-exports.router.route('/products').get(auth_handler_1.userControllers.protectRoute, product_hndler_1.get_product).post(product_hndler_1.add_product);
-exports.router.route('/:id/category').get(product_hndler_1.productCategory);
-exports.router.route('/products_Id/:id').get(auth_handler_1.userControllers.protectRoute, product_hndler_1.get_product_Byid);
+exports.userRouter.route('/products').get(auth_handler_1.userControllers.protectRoute, auth_handler_1.userControllers.viewProduct);
+exports.userRouter.route('/:id/category').get(auth_handler_1.userControllers.categorizedProducts);
+exports.userRouter.route('/products_Id/:id').get(auth_handler_1.userControllers.productById);

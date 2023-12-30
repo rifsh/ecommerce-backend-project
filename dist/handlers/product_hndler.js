@@ -30,7 +30,10 @@ exports.get_product = (0, asyncHandler_1.default)((req, res, next) => __awaiter(
     auth_controller_1.userSrvc.products(req, res, next);
 }));
 exports.productCategory = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.productByCategory(req, res, next);
+    const products = yield auth_controller_1.userSrvc.productByCategory(req, res, next);
+    res.status(200).json({
+        products
+    });
 }));
 exports.get_product_Byid = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.productById(req, res, next);

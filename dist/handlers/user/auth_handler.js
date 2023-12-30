@@ -38,11 +38,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userControllers = void 0;
 const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
-const usermodel_1 = require("../models/user/usermodel");
-const asyncHandler_1 = __importDefault(require("../utils/asyncHandler"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const customerror_1 = require("../utils/customerror");
-const auth_controller_1 = require("../services/user/auth-controller");
+const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
+const auth_controller_1 = require("../../services/user/auth-controller");
 dotenv.config({ path: path_1.default.join(__dirname, '../../config.env') });
 const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield auth_controller_1.userSrvc.signUp(req, res, next);
@@ -56,7 +53,23 @@ const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0,
     });
 }));
 const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.logIn(req, res, next);
+    const logedValue = yield auth_controller_1.userSrvc.logIn(req, res, next);
+}));
+const viewProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const products = yield auth_controller_1.userSrvc.products(req, res, next);
+    res.status(200).json({
+        status: "OK",
+        total_Products: products.length,
+        datas: {
+            products
+        }
+    });
+}));
+const categorizedProducts = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const products = yield auth_controller_1.userSrvc.productByCategory(req, res, next);
+}));
+const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    yield auth_controller_1.userSrvc.productById(req, res, next);
 }));
 const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.addToCart(req, res, next);
@@ -65,32 +78,7 @@ const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 
     auth_controller_1.userSrvc.viewCart(req, res, next);
 }));
 const protectRoute = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    //Reading the token and check if it exist
-    let token;
-    const testToken = req.headers.authorization;
-    if (testToken && testToken.startsWith('bearer')) {
-        const sampleToken = testToken.split(' ');
-        token = sampleToken[1];
-    }
-    if (!token) {
-        next(new customerror_1.customeError('You are not logged in !!', 402));
-    }
-    //Validate the token
-    const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
-    let decodeId;
-    for (const key in tokenDecode) {
-        if (key === 'id') {
-            decodeId = tokenDecode[key];
-        }
-    }
-    //If the user exist
-    const user = yield usermodel_1.Users.findById(decodeId);
-    if (!user) {
-        next(new customerror_1.customeError('User is not present', 401));
-    }
-    //If the user changed the password after the was issuea
-    //Allow the user access the route
-    next();
+    auth_controller_1.userSrvc.routeProtecter(req, res, next);
 }));
 const addWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.addToWishList(req, res, next);
@@ -101,13 +89,20 @@ const viewWishlist = (0, asyncHandler_1.default)((req, res, next) => __awaiter(v
 const deleteWishlistprdct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.deleteWishList(req, res, next);
 }));
+const addToOrder = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    auth_controller_1.userSrvc.addToOrder(req, res, next);
+}));
 exports.userControllers = {
     signUp,
     logIn,
+    viewProduct,
+    categorizedProducts,
+    productById,
     addToCart,
     viewCart,
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
-    protectRoute
+    protectRoute,
+    addToOrder
 };

@@ -14,31 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userSrvc = void 0;
 const usermodel_1 = require("../../models/user/usermodel");
-const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../../utils/customerror");
 const productsmodel_1 = require("../../models/productsmodel");
 const cartModel_1 = require("../../models/user/cartModel");
 const wishlistModel_1 = require("../../models/user/wishlistModel");
+let user;
 //JWT_token
 let userToken = (id) => {
     return jsonwebtoken_1.default.sign({ id: id }, process.env.jwt_string, {
         expiresIn: 30000000
     });
 };
-const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const newUser = yield usermodel_1.Users.create(req.body);
-    const token = userToken(newUser._id);
-    res.status(200).json({
-        status: "Success",
-        token,
-        data: {
-            user: newUser
-        }
-    });
-}));
-const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const usrname = req.body.usrname;
+    return newUser;
+});
+const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const usrname = req.body.username;
     const password = req.body.password;
     if (!usrname || !password) {
         const err = new customerror_1.customeError(`Please provide a Username and password`, 404);
@@ -52,40 +45,44 @@ const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, 
     const token = userToken(logedUser._id);
     res.status(200).json({
         status: "Valid",
-        token,
-        // datas: {
-        //     user: logedUser
-        // },
+        token
     });
-}));
-const products = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+const products = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let products = [];
     products = yield productsmodel_1.producModel.find({});
-    res.status(200).json({
-        status: "OK",
-        total_Products: products.length,
-        datas: {
-            products
-        }
-    });
-}));
-const productByCategory = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    return products;
+});
+const productByCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const category = req.params.id;
-    const categorizedProduts = yield productsmodel_1.producModel.findOne({ category: category });
-    console.log(categorizedProduts);
-}));
-const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const categorizedProduts = yield productsmodel_1.producModel.find({ category: category });
+    if (categorizedProduts.length === 0) {
+        next(new customerror_1.customeError(`Product not found with the category '${category}'`, 404));
+    }
+    else {
+        res.status(200).json({
+            totalProducts: categorizedProduts.length,
+            products: categorizedProduts
+        });
+        return categorizedProduts;
+    }
+});
+const productById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let products = [];
     products = yield productsmodel_1.producModel.findById(req.params.id);
-    res.status(200).json({
-        status: "OK",
-        total_Products: products.length,
-        datas: {
-            products
-        }
-    });
-}));
-const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!products) {
+        next(new customerror_1.customeError(`Product not found eith given Id '${req.params.id}'!!`, 404));
+    }
+    else {
+        res.status(200).json({
+            status: "OK",
+            datas: {
+                products
+            }
+        });
+    }
+});
+const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.body.productId;
     const userId = req.params.id;
     const product = yield productsmodel_1.producModel.findById(productId);
@@ -110,8 +107,8 @@ const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void
     else if (existingProduct) {
         next(new customerror_1.customeError('product is already in cart', 404));
     }
-}));
-const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+const viewCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const viewCart = yield cartModel_1.CartModel.findOne({ userId: req.params.id });
     // const products = await producModel.findById(viewCart.products);
     console.log(viewCart);
@@ -121,8 +118,8 @@ const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 
             products: viewCart
         }
     });
-}));
-const addToWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+const addToWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.body.productId;
     const userId = req.params.id;
     const prodcut = yield productsmodel_1.producModel.findById(productId);
@@ -147,8 +144,8 @@ const addToWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(
     else if (existingProduct) {
         next(new customerror_1.customeError('product is already in Wishlist', 404));
     }
-}));
-const viewWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+const viewWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
     const wishlist = yield wishlistModel_1.wishListModel.findOne({ userId });
     if (wishlist) {
@@ -159,8 +156,8 @@ const viewWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(v
     else {
         next(new customerror_1.customeError(`User not found with id${userId}`, 404));
     }
-}));
-const deleteWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+});
+const deleteWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const prodcutId = req.body.productId;
     const productFinding = yield wishlistModel_1.wishListModel.findOne({ userId: id, wishlistedproducts: prodcutId });
@@ -179,8 +176,40 @@ const deleteWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter
     else if (!checkUser) {
         next(new customerror_1.customeError(`User not found with id ${id}`, 404));
     }
-}));
+});
+const routeProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //Reading the token and check if it exist
+    let token;
+    const testToken = req.headers.authorization;
+    if (testToken && testToken.startsWith('bearer')) {
+        const sampleToken = testToken.split(' ');
+        token = sampleToken[1];
+    }
+    if (!token) {
+        next(new customerror_1.customeError('You are not logged in !!', 402));
+    }
+    //Validate the token
+    const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
+    let decodeId;
+    for (const key in tokenDecode) {
+        if (key === 'id') {
+            decodeId = tokenDecode[key];
+        }
+    }
+    //If the user exist
+    user = yield usermodel_1.Users.findById(decodeId);
+    if (!user) {
+        next(new customerror_1.customeError('User is not present', 401));
+    }
+    next();
+    return user;
+});
+const addToOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    console.log(yield user);
+});
 exports.userSrvc = {
+    userToken,
     signUp,
     logIn,
     products,
@@ -190,5 +219,7 @@ exports.userSrvc = {
     viewCart,
     addToWishList,
     viewWishList,
-    deleteWishList
+    deleteWishList,
+    addToOrder,
+    routeProtecter
 };

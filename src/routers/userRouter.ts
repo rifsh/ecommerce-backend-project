@@ -1,21 +1,21 @@
 import exp from 'express';
-import {userControllers} from '../handlers/auth_handler';
-import {add_product, get_product, get_product_Byid, productCategory} from '../handlers/product_hndler';
+import {userControllers} from '../handlers/user/auth_handler';
 
 
 
-export const router = exp.Router();
+export const userRouter = exp.Router();
 
 //user_router
-router.route('/signup').post(userControllers.signUp);
-router.route('/login').post(userControllers.logIn);
-router.route('/:id/cart').post(userControllers.addToCart);
-router.route('/:id/cart').get(userControllers.viewCart);
-router.route('/:id/wishlist').post(userControllers.addWishList);
-router.route('/:id/wishlist').get(userControllers.viewWishlist);
-router.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
+userRouter.route('/signup').post(userControllers.signUp);
+userRouter.route('/login').post(userControllers.logIn);
+userRouter.route('/:id/cart').post(userControllers.addToCart);
+userRouter.route('/:id/cart').get(userControllers.viewCart);
+userRouter.route('/:id/wishlist').post(userControllers.addWishList);
+userRouter.route('/:id/wishlist').get(userControllers.viewWishlist);
+userRouter.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
+userRouter.route('/:id/addtoorder').post(userControllers.addToOrder);
 
 //products_router
-router.route('/products').get(userControllers.protectRoute,get_product).post(add_product);
-router.route('/:id/category').get(productCategory);
-router.route('/products_Id/:id').get(userControllers.protectRoute,get_product_Byid);
+userRouter.route('/products').get(userControllers.protectRoute,userControllers.viewProduct);
+userRouter.route('/:id/category').get(userControllers.categorizedProducts);
+userRouter.route('/products_Id/:id').get(userControllers.productById);
