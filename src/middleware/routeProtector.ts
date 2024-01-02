@@ -1,0 +1,60 @@
+import { JwtPayload } from "jsonwebtoken";
+import dotenv from 'dotenv'
+import jwt from "jsonwebtoken";
+import { customeError } from "../utils/customerror";
+import { NextFunction, Request, Response } from "express";
+import { Users } from "../models/user/usermodel";
+import path from "path";
+
+dotenv.config({path: path.join(__dirname, '../../config.env')})
+
+export const userRouteProtecter = async (req: Request, res: Response, next: NextFunction) => {
+    //Reading the token and check if it exist
+    let token: string;
+    const testToken = req.headers.authorization;
+    if (testToken && testToken.startsWith('bearer')) {
+        const sampleToken: string[] = testToken.split(' ');
+        token = sampleToken[1];
+    }
+
+    if (!token) {
+        next(new customeError('You are not logged in !!', 402));
+    }
+
+    //Validate the token
+    const tokenDecode = await jwt.verify(token, process.env.jwt_string);
+    const tokenDec = tokenDecode as JwtPayload
+    //If the user exist
+    let user = await Users.findById(tokenDec.id);
+    
+    if (!user) {
+        next(new customeError('User is not present', 401));
+    }
+
+    next();
+}
+export const adminRouteProtecter = async (req: Request, res: Response, next: NextFunction) => {
+    let token: string;
+    
+    const headerToken = req.headers.authorization;
+    if (!headerToken) {
+        next(new customeError('Please provide a token', 401));
+    }
+    if (headerToken && headerToken.toLowerCase().startsWith('bearer')) {
+        token = headerToken.split(' ')[1]
+    }
+    if (!token) {
+        next(new customeError('You are not logged in !!', 402));
+    }
+    const tokenDecode= await jwt.verify(token, process.env.jwt_string);
+    const tokenDec = tokenDecode as JwtPayload;
+
+    const admin = process.env.ADMIN_USRNAME === tokenDec.name;
+    if (!admin) {
+        next(new customeError('Admin is not present', 401));
+    }
+    next()
+}
+
+
+

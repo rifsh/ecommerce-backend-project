@@ -78,9 +78,6 @@ const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void
 const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.viewCart(req, res, next);
 }));
-const protectRoute = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.routeProtecter(req, res, next);
-}));
 const addWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.addToWishList(req, res, next);
 }));
@@ -107,7 +104,6 @@ exports.userControllers = {
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
-    protectRoute,
     addToOrder,
     deleteall
 };

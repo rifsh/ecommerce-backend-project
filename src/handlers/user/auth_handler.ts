@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response, request } from 'express';
 import * as dotenv from 'dotenv';
 import path from 'path'
-import { Users } from '../../models/user/usermodel';
 import catchAsync from '../../utils/asyncHandler';
-import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
-import { customeError } from '../../utils/customerror';
-import tokenInterface from '../../models/interfaces/user_interfaces/tokeninterface';
 import { userSrvc } from '../../services/user/auth-controller';
 import { orderModel } from '../../models/user/orderModel';
 
@@ -50,10 +46,6 @@ const addToCart = catchAsync(async (req: Request, res: Response, next: NextFunct
 const viewCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     userSrvc.viewCart(req, res, next)
 })
-const protectRoute = catchAsync(async (req: Request, res: Response, next) => {
-   userSrvc.routeProtecter(req, res, next);
-   
-})
 const addWishList = catchAsync(async (req: Request, res: Response, next) => {
     userSrvc.addToWishList(req, res, next)
 })
@@ -86,7 +78,6 @@ export const userControllers = {
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
-    protectRoute,
     addToOrder,
     deleteall
 } 

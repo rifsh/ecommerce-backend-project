@@ -1,5 +1,6 @@
 import exp from 'express';
 import {userControllers} from '../handlers/user/auth_handler';
+import {userRouteProtecter} from '../middleware/routeProtector';
 
 
 
@@ -17,6 +18,6 @@ userRouter.route('/:id/addtoorder').post(userControllers.addToOrder);
 userRouter.route('/addtoorder').get(userControllers.deleteall);
 
 //products_router
-userRouter.route('/products').get(userControllers.protectRoute,userControllers.viewProduct);
+userRouter.route('/products').get(userRouteProtecter,userControllers.viewProduct);
 userRouter.route('/:id/category').get(userControllers.categorizedProducts);
 userRouter.route('/products_Id/:id').get(userControllers.productById);

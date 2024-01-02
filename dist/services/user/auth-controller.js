@@ -184,33 +184,6 @@ const deleteWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(new customerror_1.customeError(`User not found with id ${id}`, 404));
     }
 });
-const routeProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    //Reading the token and check if it exist
-    let token;
-    const testToken = req.headers.authorization;
-    if (testToken && testToken.startsWith('bearer')) {
-        const sampleToken = testToken.split(' ');
-        token = sampleToken[1];
-    }
-    if (!token) {
-        next(new customerror_1.customeError('You are not logged in !!', 402));
-    }
-    //Validate the token
-    const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
-    let decodeId;
-    for (const key in tokenDecode) {
-        if (key === 'id') {
-            decodeId = tokenDecode[key];
-        }
-    }
-    //If the user exist
-    user = yield usermodel_1.Users.findById(decodeId);
-    if (!user) {
-        next(new customerror_1.customeError('User is not present', 401));
-    }
-    next();
-    return user;
-});
 const addToOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const products = req.body.product;
@@ -253,6 +226,5 @@ exports.userSrvc = {
     addToWishList,
     viewWishList,
     deleteWishList,
-    addToOrder,
-    routeProtecter
+    addToOrder
 };

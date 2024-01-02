@@ -37,6 +37,7 @@ const addProduct = catchAsync(async (req: Request, res: Response, next: NextFunc
     res.status(201).json({
         status: 'success',
         message: 'Successfully created a product.',
+        addedProduct: products
     })
 })
 const updateProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

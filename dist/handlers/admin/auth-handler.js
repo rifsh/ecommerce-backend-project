@@ -43,6 +43,7 @@ const addProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(voi
     res.status(201).json({
         status: 'success',
         message: 'Successfully created a product.',
+        addedProduct: products
     });
 }));
 const updateProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

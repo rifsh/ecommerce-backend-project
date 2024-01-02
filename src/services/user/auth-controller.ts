@@ -6,7 +6,6 @@ import { producModel } from "../../models/productsmodel";
 import { orderModel } from "../../models/user/orderModel";
 import { CartModel } from "../../models/user/cartModel";
 import { wishListModel } from "../../models/user/wishlistModel";
-import tokenInterface from "../../models/interfaces/user_interfaces/tokeninterface";
 
 let user;
 
@@ -176,38 +175,7 @@ const deleteWishList = async (req: Request, res: Response, next: NextFunction) =
         next(new customeError(`User not found with id ${id}`, 404));
     }
 }
-const routeProtecter = async (req: Request, res: Response, next: NextFunction) => {
-    //Reading the token and check if it exist
-    let token: string;
-    const testToken = req.headers.authorization;
-    if (testToken && testToken.startsWith('bearer')) {
-        const sampleToken: string[] = testToken.split(' ');
-        token = sampleToken[1];
-    }
 
-    if (!token) {
-        next(new customeError('You are not logged in !!', 402));
-    }
-
-    //Validate the token
-    const tokenDecode: tokenInterface | String | JwtPayload = await jwt.verify(token, process.env.jwt_string);
-    let decodeId: string;
-    for (const key in tokenDecode) {
-        if (key === 'id') {
-            decodeId = tokenDecode[key]
-        }
-
-    }
-    //If the user exist
-    user = await Users.findById(decodeId);
-
-    if (!user) {
-        next(new customeError('User is not present', 401));
-    }
-
-    next();
-    return user
-}
 const addToOrder = async (req: Request, res: Response, next: NextFunction) => {
     const id: string = req.params.id;
     const products = req.body.product;
@@ -255,6 +223,5 @@ export const userSrvc = {
     addToWishList,
     viewWishList,
     deleteWishList,
-    addToOrder,
-    routeProtecter
+    addToOrder
 }

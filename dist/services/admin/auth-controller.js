@@ -37,29 +37,6 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         return tokens;
     }
 });
-const routeProtector = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    let validTokens;
-    const authentication = req.headers.authorization;
-    if (authentication && authentication.startsWith('bearer')) {
-        const sampleToken = authentication.split(' ');
-        validTokens = sampleToken[1];
-    }
-    if (!validTokens) {
-        next(new customerror_1.customeError('You are not loggedin !!!', 404));
-    }
-    const tokenDecode = yield jsonwebtoken_1.default.verify(validTokens, process.env.jwt_string);
-    let adminName;
-    for (const key in tokenDecode) {
-        if (key === 'name') {
-            adminName = tokenDecode[key];
-        }
-    }
-    const tokeValidation = process.env.ADMIN_USRNAME === adminName;
-    if (!tokeValidation) {
-        next(new customerror_1.customeError('You are not loggedin', 404));
-    }
-    next();
-});
 const userFinding = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const users = usermodel_1.Users.find();
     return users;
@@ -70,18 +47,19 @@ const userById = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     return users;
 });
 const addproduts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const enteredProduct = req.body;
-    const createdProduct = yield productsmodel_1.producModel.create(enteredProduct);
+    const { title, image, description, price, category } = req.body;
+    const createdProduct = yield productsmodel_1.producModel.create({ title, image, description, price, category });
     return createdProduct;
 });
 const updateProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
+    const { title, image, description, price, category } = req.body;
     const product = yield productsmodel_1.producModel.findById(id);
     if (!product) {
         next(new customerror_1.customeError(`No such product found with id ${id}`, 404));
     }
     else {
-        const updateProduct = yield product.updateOne(req.body);
+        const updateProduct = yield product.updateOne({ title, image, description, price, category });
         product.save();
         return id;
     }
@@ -104,7 +82,6 @@ const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 exports.admin_srvc = {
     login,
     token,
-    routeProtector,
     userFinding,
     userById,
     addproduts,
