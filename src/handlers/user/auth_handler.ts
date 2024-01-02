@@ -7,6 +7,7 @@ import jwt, { Jwt, JwtPayload } from 'jsonwebtoken'
 import { customeError } from '../../utils/customerror';
 import tokenInterface from '../../models/interfaces/user_interfaces/tokeninterface';
 import { userSrvc } from '../../services/user/auth-controller';
+import { orderModel } from '../../models/user/orderModel';
 
 dotenv.config({ path: path.join(__dirname, '../../config.env') });
 
@@ -65,6 +66,9 @@ const deleteWishlistprdct = catchAsync(async (req: Request, res: Response, next)
 const addToOrder = catchAsync(async (req: Request, res: Response, next) => {
     userSrvc.addToOrder(req, res, next)
 })
+const deleteall = catchAsync(async (req: Request, res: Response, next) => {
+    await orderModel.deleteMany();
+})
 
 
 
@@ -83,5 +87,6 @@ export const userControllers = {
     viewWishlist,
     deleteWishlistprdct,
     protectRoute,
-    addToOrder
+    addToOrder,
+    deleteall
 } 

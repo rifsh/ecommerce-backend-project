@@ -14,6 +14,7 @@ userRouter.route('/:id/wishlist').post(userControllers.addWishList);
 userRouter.route('/:id/wishlist').get(userControllers.viewWishlist);
 userRouter.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
 userRouter.route('/:id/addtoorder').post(userControllers.addToOrder);
+userRouter.route('/addtoorder').get(userControllers.deleteall);
 
 //products_router
 userRouter.route('/products').get(userControllers.protectRoute,userControllers.viewProduct);

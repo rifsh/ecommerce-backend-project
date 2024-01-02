@@ -40,6 +40,7 @@ const dotenv = __importStar(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 const auth_controller_1 = require("../../services/user/auth-controller");
+const orderModel_1 = require("../../models/user/orderModel");
 dotenv.config({ path: path_1.default.join(__dirname, '../../config.env') });
 const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield auth_controller_1.userSrvc.signUp(req, res, next);
@@ -92,6 +93,9 @@ const deleteWishlistprdct = (0, asyncHandler_1.default)((req, res, next) => __aw
 const addToOrder = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.addToOrder(req, res, next);
 }));
+const deleteall = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    yield orderModel_1.orderModel.deleteMany();
+}));
 exports.userControllers = {
     signUp,
     logIn,
@@ -104,5 +108,6 @@ exports.userControllers = {
     viewWishlist,
     deleteWishlistprdct,
     protectRoute,
-    addToOrder
+    addToOrder,
+    deleteall
 };

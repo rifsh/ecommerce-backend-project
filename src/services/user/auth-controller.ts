@@ -1,10 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { Users } from "../../models/user/usermodel";
-import catchAsync from "../../utils/asyncHandler";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import mongoose, { Mongoose, MongooseBulkWriteOptions, MongooseDocumentMiddleware } from "mongoose";
 import { customeError } from "../../utils/customerror";
 import { producModel } from "../../models/productsmodel";
+import { orderModel } from "../../models/user/orderModel";
 import { CartModel } from "../../models/user/cartModel";
 import { wishListModel } from "../../models/user/wishlistModel";
 import tokenInterface from "../../models/interfaces/user_interfaces/tokeninterface";
@@ -79,27 +78,32 @@ const productById = async (req: Request, res: Response, next: NextFunction) => {
 const addToCart = async (req: Request, res: Response, next: NextFunction) => {
     const productId = req.body.productId;
     const userId = req.params.id;
+    const userFinding = await Users.findById(userId);
     const product = await producModel.findById(productId);
     const existingUser = await CartModel.findOne({ userId: userId });
     const existingProduct = await CartModel.findOne({ userId: userId, products: productId });
-
-    if (existingUser && !existingProduct) {
-        existingUser.products.push(productId);
-        await existingUser.save();
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        })
-    } else if (!existingUser) {
-        //New user
-        const addingCart = await CartModel.create({ userId: userId, products: [productId] });
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        })
-    } else if (existingProduct) {
-        next(new customeError('product is already in cart', 404))
+    if (!product || !userFinding) {
+        next(new customeError("Product or User not found in the db", 404));
+    } else {
+        if (existingUser && !existingProduct) {
+            existingUser.products.push(productId);
+            await existingUser.save();
+            res.status(200).json({
+                status: "Success",
+                message: "Your product is added to cart"
+            })
+        } else if (!existingUser) {
+            //New user
+            const addingCart = await CartModel.create({ userId: userId, products: [productId] });
+            res.status(200).json({
+                status: "Success",
+                message: "Your product is added to cart"
+            })
+        } else if (existingProduct) {
+            next(new customeError('product is already in cart', 404))
+        }
     }
+
 }
 const viewCart = async (req: Request, res: Response, next: NextFunction) => {
     const viewCart = await CartModel.findOne({ userId: req.params.id });
@@ -196,6 +200,7 @@ const routeProtecter = async (req: Request, res: Response, next: NextFunction) =
     }
     //If the user exist
     user = await Users.findById(decodeId);
+
     if (!user) {
         next(new customeError('User is not present', 401));
     }
@@ -205,8 +210,35 @@ const routeProtecter = async (req: Request, res: Response, next: NextFunction) =
 }
 const addToOrder = async (req: Request, res: Response, next: NextFunction) => {
     const id: string = req.params.id;
-    console.log(await user);
-    
+    const products = req.body.product;
+    const prdctPrice = await producModel.findById(products);
+    const userChecking = await Users.findById(id);
+    const productChecking = await producModel.findById(products);
+    const exixstingUser = await orderModel.findOne({ userid: id });
+    const existingProduct = await orderModel.findOne({ userid: id, Products: products });
+
+    if (exixstingUser && !existingProduct) {
+        exixstingUser.Products.push(products);
+        exixstingUser.save();
+        res.status(200).json({
+            status: "OK",
+            message: `Product is added to your Order list with your id${id}`,
+            data: {
+                Order: exixstingUser
+            }
+        })
+    } else if (existingProduct) {
+        next(new customeError('Product is already exist in your order list !!!', 404));
+    }
+    else if (!exixstingUser) {
+        const productAdding = orderModel.create({ userid: id, Products: products });
+
+        res.status(200).json({
+            status: "OK",
+            message: `Product with id${products} is added to your Order list`
+        })
+    }
+
 }
 
 

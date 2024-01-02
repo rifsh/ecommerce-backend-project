@@ -17,6 +17,7 @@ const usermodel_1 = require("../../models/user/usermodel");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../../utils/customerror");
 const productsmodel_1 = require("../../models/productsmodel");
+const orderModel_1 = require("../../models/user/orderModel");
 const cartModel_1 = require("../../models/user/cartModel");
 const wishlistModel_1 = require("../../models/user/wishlistModel");
 let user;
@@ -85,27 +86,33 @@ const productById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.body.productId;
     const userId = req.params.id;
+    const userFinding = yield usermodel_1.Users.findById(userId);
     const product = yield productsmodel_1.producModel.findById(productId);
     const existingUser = yield cartModel_1.CartModel.findOne({ userId: userId });
     const existingProduct = yield cartModel_1.CartModel.findOne({ userId: userId, products: productId });
-    if (existingUser && !existingProduct) {
-        existingUser.products.push(productId);
-        yield existingUser.save();
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        });
+    if (!product || !userFinding) {
+        next(new customerror_1.customeError("Product or User not found in the db", 404));
     }
-    else if (!existingUser) {
-        //New user
-        const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId] });
-        res.status(200).json({
-            status: "Success",
-            message: "Your product is added to cart"
-        });
-    }
-    else if (existingProduct) {
-        next(new customerror_1.customeError('product is already in cart', 404));
+    else {
+        if (existingUser && !existingProduct) {
+            existingUser.products.push(productId);
+            yield existingUser.save();
+            res.status(200).json({
+                status: "Success",
+                message: "Your product is added to cart"
+            });
+        }
+        else if (!existingUser) {
+            //New user
+            const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId] });
+            res.status(200).json({
+                status: "Success",
+                message: "Your product is added to cart"
+            });
+        }
+        else if (existingProduct) {
+            next(new customerror_1.customeError('product is already in cart', 404));
+        }
     }
 });
 const viewCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -206,7 +213,33 @@ const routeProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 });
 const addToOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
-    console.log(yield user);
+    const products = req.body.product;
+    const prdctPrice = yield productsmodel_1.producModel.findById(products);
+    const userChecking = yield usermodel_1.Users.findById(id);
+    const productChecking = yield productsmodel_1.producModel.findById(products);
+    const exixstingUser = yield orderModel_1.orderModel.findOne({ userid: id });
+    const existingProduct = yield orderModel_1.orderModel.findOne({ userid: id, Products: products });
+    if (exixstingUser && !existingProduct) {
+        exixstingUser.Products.push(products);
+        exixstingUser.save();
+        res.status(200).json({
+            status: "OK",
+            message: `Product is added to your Order list with your id${id}`,
+            data: {
+                Order: exixstingUser
+            }
+        });
+    }
+    else if (existingProduct) {
+        next(new customerror_1.customeError('Product is already exist in your order list !!!', 404));
+    }
+    else if (!exixstingUser) {
+        const productAdding = orderModel_1.orderModel.create({ userid: id, Products: products });
+        res.status(200).json({
+            status: "OK",
+            message: `Product with id${products} is added to your Order list`
+        });
+    }
 });
 exports.userSrvc = {
     userToken,

@@ -1,13 +1,17 @@
 import mongoose from 'mongoose';
 import userCartInterface from '../interfaces/user_interfaces/user_cart';
+import { Users } from './usermodel';
+import { producModel } from '../productsmodel';
 
 const cartSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId
+        type: mongoose.Schema.Types.ObjectId,
+        ref:Users
     },
     products: [{
         type: mongoose.Schema.Types.ObjectId,
-        required: [true, 'Please enter a valid productId']
+        required: [true, 'Please enter a valid productId'],
+        ref:producModel
     }]
 
 })

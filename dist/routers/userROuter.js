@@ -16,6 +16,7 @@ exports.userRouter.route('/:id/wishlist').post(auth_handler_1.userControllers.ad
 exports.userRouter.route('/:id/wishlist').get(auth_handler_1.userControllers.viewWishlist);
 exports.userRouter.route('/:id/deletewishlist').post(auth_handler_1.userControllers.deleteWishlistprdct);
 exports.userRouter.route('/:id/addtoorder').post(auth_handler_1.userControllers.addToOrder);
+exports.userRouter.route('/addtoorder').get(auth_handler_1.userControllers.deleteall);
 //products_router
 exports.userRouter.route('/products').get(auth_handler_1.userControllers.protectRoute, auth_handler_1.userControllers.viewProduct);
 exports.userRouter.route('/:id/category').get(auth_handler_1.userControllers.categorizedProducts);
