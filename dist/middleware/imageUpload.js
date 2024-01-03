@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.imgUpload = void 0;
+exports.userImgUpload = exports.imgUpload = void 0;
 const fs_1 = __importDefault(require("fs"));
 const cloudinary_1 = __importDefault(require("cloudinary"));
 const dotenv_1 = __importDefault(require("dotenv"));
@@ -59,3 +59,26 @@ const imgUpload = (req, res, next) => {
     }));
 };
 exports.imgUpload = imgUpload;
+const userImgUpload = (req, res, next) => {
+    upload.single("profileImg")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
+        if (err) {
+            next(new customerror_1.customeError('Not uplaoded', 401));
+        }
+        try {
+            const result = yield cloudin.uploader.upload(req.file.path, {
+                folder: "userimg"
+            });
+            req.body.image = result.secure_url;
+            fs_1.default.unlink(req.file.path, (unlinker) => {
+                if (unlinker) {
+                    console.log('Error, deleting local file', unlinker);
+                }
+            });
+            next();
+        }
+        catch (error) {
+            next(new customerror_1.customeError('Error uploading file to Cloudinary', 404));
+        }
+    }));
+};
+exports.userImgUpload = userImgUpload;

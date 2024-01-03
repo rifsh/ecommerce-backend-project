@@ -18,8 +18,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../utils/customerror");
 const usermodel_1 = require("../models/user/usermodel");
 const path_1 = __importDefault(require("path"));
+const asyncHandler_1 = __importDefault(require("../utils/asyncHandler"));
 dotenv_1.default.config({ path: path_1.default.join(__dirname, '../../config.env') });
-const userRouteProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userRouteProtecter = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     //Reading the token and check if it exist
     let token;
     const testToken = req.headers.authorization;
@@ -39,9 +40,8 @@ const userRouteProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0,
         next(new customerror_1.customeError('User is not present', 401));
     }
     next();
-});
-exports.userRouteProtecter = userRouteProtecter;
-const adminRouteProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+exports.adminRouteProtecter = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let token;
     const headerToken = req.headers.authorization;
     if (!headerToken) {
@@ -60,5 +60,4 @@ const adminRouteProtecter = (req, res, next) => __awaiter(void 0, void 0, void 0
         next(new customerror_1.customeError('Admin is not present', 401));
     }
     next();
-});
-exports.adminRouteProtecter = adminRouteProtecter;
+}));

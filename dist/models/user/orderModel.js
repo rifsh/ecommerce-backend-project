@@ -5,14 +5,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.orderModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
+const usermodel_1 = require("./usermodel");
+const productsmodel_1 = require("../productsmodel");
 const orderSchema = new mongoose_1.default.Schema({
     userid: {
         type: mongoose_1.default.Schema.Types.ObjectId,
-        require: [true, "Userid is not present"]
+        require: [true, "Userid is not present"],
+        ref: usermodel_1.Users
     },
     Products: [{
             type: mongoose_1.default.Schema.Types.ObjectId,
-            require: [true, "Product is not present"]
+            require: [true, "Product is not present"],
+            ref: productsmodel_1.producModel
         }],
     purchaseDate: {
         type: Date,

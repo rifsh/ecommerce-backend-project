@@ -8,13 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userSrvc = void 0;
 const usermodel_1 = require("../../models/user/usermodel");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const token_1 = require("../../utils/token");
 const customerror_1 = require("../../utils/customerror");
 const productsmodel_1 = require("../../models/productsmodel");
 const orderModel_1 = require("../../models/user/orderModel");
@@ -22,13 +19,9 @@ const cartModel_1 = require("../../models/user/cartModel");
 const wishlistModel_1 = require("../../models/user/wishlistModel");
 let user;
 //JWT_token
-let userToken = (id) => {
-    return jsonwebtoken_1.default.sign({ id: id }, process.env.jwt_string, {
-        expiresIn: 30000000
-    });
-};
 const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const newUser = yield usermodel_1.Users.create(req.body);
+    const { name, usrname, email, password, confirmPassword, image } = yield req.body;
+    const newUser = yield usermodel_1.Users.create({ name, usrname, email, password, confirmPassword, profileImg: image });
     return newUser;
 });
 const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -43,7 +36,7 @@ const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         const error = new customerror_1.customeError('Incorrect username or password', 404);
         return next(error);
     }
-    const token = userToken(logedUser._id);
+    const token = (0, token_1.userToken)(logedUser._id);
     res.status(200).json({
         status: "Valid",
         token
@@ -184,6 +177,16 @@ const deleteWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(new customerror_1.customeError(`User not found with id ${id}`, 404));
     }
 });
+const payment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.params.id;
+    const user = yield usermodel_1.Users.findById(userId);
+    const cart = yield cartModel_1.CartModel.findOne({ userId });
+    if (!user) {
+        next(new customerror_1.customeError('User is not found!!!', 404));
+    }
+    else {
+    }
+});
 const addToOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     const products = req.body.product;
@@ -215,7 +218,6 @@ const addToOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.userSrvc = {
-    userToken,
     signUp,
     logIn,
     products,
@@ -226,5 +228,6 @@ exports.userSrvc = {
     addToWishList,
     viewWishList,
     deleteWishList,
+    payment,
     addToOrder
 };

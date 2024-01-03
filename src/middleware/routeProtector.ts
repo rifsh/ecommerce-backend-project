@@ -5,10 +5,11 @@ import { customeError } from "../utils/customerror";
 import { NextFunction, Request, Response } from "express";
 import { Users } from "../models/user/usermodel";
 import path from "path";
+import catchAsync from "../utils/asyncHandler";
 
 dotenv.config({path: path.join(__dirname, '../../config.env')})
 
-export const userRouteProtecter = async (req: Request, res: Response, next: NextFunction) => {
+export const userRouteProtecter = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     //Reading the token and check if it exist
     let token: string;
     const testToken = req.headers.authorization;
@@ -32,8 +33,8 @@ export const userRouteProtecter = async (req: Request, res: Response, next: Next
     }
 
     next();
-}
-export const adminRouteProtecter = async (req: Request, res: Response, next: NextFunction) => {
+})
+export const adminRouteProtecter = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let token: string;
     
     const headerToken = req.headers.authorization;
@@ -54,7 +55,7 @@ export const adminRouteProtecter = async (req: Request, res: Response, next: Nex
         next(new customeError('Admin is not present', 401));
     }
     next()
-}
+})
 
 
 

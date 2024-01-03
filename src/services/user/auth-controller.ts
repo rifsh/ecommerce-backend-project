@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Users } from "../../models/user/usermodel";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import { userToken } from "../../utils/token";
 import { customeError } from "../../utils/customerror";
 import { producModel } from "../../models/productsmodel";
 import { orderModel } from "../../models/user/orderModel";
@@ -10,13 +10,10 @@ import { wishListModel } from "../../models/user/wishlistModel";
 let user;
 
 //JWT_token
-let userToken = (id?): string => {
-    return jwt.sign({ id: id }, process.env.jwt_string, {
-        expiresIn: 30000000
-    })
-}
-const signUp = async (req: Request, res: Response, next: NextFunction): Promise<userInterface> => {
-    const newUser = await Users.create(req.body);
+
+const signUp = async (req: Request, res: Response, next: NextFunction) => {
+    const { name, usrname, email, password, confirmPassword, image } = await req.body;
+    const newUser = await Users.create({ name, usrname, email, password, confirmPassword, profileImg: image });
     return newUser
 }
 const logIn = async (req: Request, res: Response, next: NextFunction) => {
@@ -175,7 +172,17 @@ const deleteWishList = async (req: Request, res: Response, next: NextFunction) =
         next(new customeError(`User not found with id ${id}`, 404));
     }
 }
-
+const payment = async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    const user = await Users.findById(userId);
+    const cart = await CartModel.findOne({userId})
+    if (!user) {
+        next(new customeError('User is not found!!!', 404));
+    }else{
+        
+    }
+    
+}
 const addToOrder = async (req: Request, res: Response, next: NextFunction) => {
     const id: string = req.params.id;
     const products = req.body.product;
@@ -212,7 +219,6 @@ const addToOrder = async (req: Request, res: Response, next: NextFunction) => {
 
 
 export const userSrvc = {
-    userToken,
     signUp,
     logIn,
     products,
@@ -223,5 +229,6 @@ export const userSrvc = {
     addToWishList,
     viewWishList,
     deleteWishList,
+    payment,
     addToOrder
 }

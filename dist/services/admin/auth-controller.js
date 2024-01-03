@@ -14,15 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.admin_srvc = void 0;
 const path_1 = __importDefault(require("path"));
+const token_1 = require("../../utils/token");
 const dotenv_1 = __importDefault(require("dotenv"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const customerror_1 = require("../../utils/customerror");
 const usermodel_1 = require("../../models/user/usermodel");
 const productsmodel_1 = require("../../models/productsmodel");
 dotenv_1.default.config({ path: path_1.default.join(__dirname, '../../../../config.env') });
-const token = (usrname) => {
-    return jsonwebtoken_1.default.sign({ name: usrname }, process.env.jwt_string);
-};
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const reqAdminName = req.body.username;
     const reqAdminPassword = req.body.password;
@@ -33,13 +30,18 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         return next(new customerror_1.customeError('User name or password is incorrecct', 404));
     }
     else {
-        const tokens = token(adminName);
+        const tokens = (0, token_1.adminToken)(adminName);
         return tokens;
     }
 });
 const userFinding = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = usermodel_1.Users.find();
-    return users;
+    const users = yield usermodel_1.Users.find();
+    if (!users || users.length === 0) {
+        next(new customerror_1.customeError("Users not found in the data base!!!", 404));
+    }
+    else {
+        return users;
+    }
 });
 const userById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const usrId = req.params.id;
@@ -81,7 +83,7 @@ const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.admin_srvc = {
     login,
-    token,
+    token: token_1.adminToken,
     userFinding,
     userById,
     addproduts,

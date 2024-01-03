@@ -3,13 +3,14 @@ import * as dotenv from 'dotenv';
 import path from 'path'
 import catchAsync from '../../utils/asyncHandler';
 import { userSrvc } from '../../services/user/auth-controller';
+import { userToken } from '../../utils/token';
 import { orderModel } from '../../models/user/orderModel';
 
 dotenv.config({ path: path.join(__dirname, '../../config.env') });
 
 const signUp = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const users = await userSrvc.signUp(req, res, next);
-    const token = userSrvc.userToken();
+    const token = userToken();
     res.status(200).json({
         status: "Success",
         token,
@@ -55,6 +56,9 @@ const viewWishlist = catchAsync(async (req: Request, res: Response, next) => {
 const deleteWishlistprdct = catchAsync(async (req: Request, res: Response, next) => {
     userSrvc.deleteWishList(req, res, next)
 })
+const userPayment  = catchAsync(async (req: Request, res: Response, next) => {
+    const payment = await userSrvc.payment(req, res, next);
+})
 const addToOrder = catchAsync(async (req: Request, res: Response, next) => {
     userSrvc.addToOrder(req, res, next)
 })
@@ -78,6 +82,7 @@ export const userControllers = {
     addWishList,
     viewWishlist,
     deleteWishlistprdct,
+    userPayment,
     addToOrder,
     deleteall
 } 

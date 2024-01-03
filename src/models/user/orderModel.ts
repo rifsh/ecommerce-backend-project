@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
+import { Users } from "./usermodel";
+import { producModel } from "../productsmodel";
 
 const orderSchema = new mongoose.Schema({
     userid: {
         type: mongoose.Schema.Types.ObjectId,
-        require: [true, "Userid is not present"]
-
+        require: [true, "Userid is not present"],
+        ref: Users
     },
     Products: [{
         type: mongoose.Schema.Types.ObjectId,
-        require: [true, "Product is not present"]
+        require: [true, "Product is not present"],
+        ref: producModel
     }],
     purchaseDate: {
         type: Date,

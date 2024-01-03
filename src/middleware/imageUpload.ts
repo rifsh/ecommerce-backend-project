@@ -50,3 +50,24 @@ export const imgUpload = (req: Request, res: Response, next: NextFunction) => {
         }
     })
 } 
+export const userImgUpload = (req: Request, res: Response, next: NextFunction) => {
+    upload.single("profileImg")(req, res, async (err) => {
+        if (err) {
+            next(new customeError('Not uplaoded', 401));
+        }
+        try {
+            const result = await cloudin.uploader.upload(req.file.path, {
+                folder: "userimg"
+            })
+            req.body.image = result.secure_url;
+            fs.unlink(req.file.path, (unlinker) => {
+                if (unlinker) {
+                    console.log('Error, deleting local file', unlinker);
+                }
+            })
+            next()
+        } catch (error) {
+            next(new customeError('Error uploading file to Cloudinary', 404));
+        }
+    })
+} 

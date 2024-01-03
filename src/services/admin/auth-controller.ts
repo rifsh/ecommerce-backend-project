@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import path from "path";
+import {adminToken} from '../../utils/token'
 import dotenv from "dotenv";
-import jwt, { JwtPayload } from "jsonwebtoken";
 import { customeError } from "../../utils/customerror";
 import { Users } from "../../models/user/usermodel";
 import { producModel } from "../../models/productsmodel";
@@ -9,9 +9,6 @@ import { producModel } from "../../models/productsmodel";
 
 dotenv.config({ path: path.join(__dirname, '../../../../config.env') });
 
-const token = (usrname: string) => {
-    return jwt.sign({ name: usrname }, process.env.jwt_string);
-}
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
     const reqAdminName = req.body.username;
@@ -22,13 +19,17 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     if (!validation) {
         return next(new customeError('User name or password is incorrecct', 404))
     } else {
-        const tokens = token(adminName)
+        const tokens = adminToken(adminName);
         return tokens
     }
 }
 const userFinding = async (req: Request, res: Response, next: NextFunction) => {
-    const users = Users.find();
-    return users;
+    const users = await Users.find();
+    if (!users || users.length === 0) {
+        next(new customeError("Users not found in the data base!!!", 404));
+    }else {
+        return users;
+    }
 }
 const userById = async (req: Request, res: Response, next: NextFunction) => {
     const usrId = req.params.id;
@@ -73,7 +74,7 @@ const deleteProduct = async (req: Request, res: Response, next: NextFunction) =>
 
 export const admin_srvc = {
     login,
-    token,
+    token: adminToken,
     userFinding,
     userById,
     addproduts,
