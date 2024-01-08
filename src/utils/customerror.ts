@@ -1,4 +1,4 @@
-export class customeError extends Error {
+export class CustomeError extends Error {
     statusCode:number;
     status:string;
     isOperational:boolean;

@@ -8,10 +8,10 @@ const orderSchema = new mongoose.Schema({
         require: [true, "Userid is not present"],
         ref: Users
     },
-    Products: [{
+    products: [{
         type: mongoose.Schema.Types.ObjectId,
-        require: [true, "Product is not present"],
-        ref: producModel
+        required: [true, 'Please enter a valid productId'],
+        ref:producModel
     }],
     purchaseDate: {
         type: Date,

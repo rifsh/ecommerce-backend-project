@@ -13,6 +13,8 @@ export const userRouter = exp.Router();
 // userRouter.route('/:id/wishlist').post(userControllers.addWishList);
 // userRouter.route('/:id/wishlist').get(userControllers.viewWishlist);
 // userRouter.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
+// userRouter.route('/:id/payment').post(userRouteProtecter,userControllers.userPayment);
+// userRouter.route('/success').get(userControllers.succes);
 // userRouter.route('/:id/addtoorder').post(userControllers.addToOrder);
 // userRouter.route('/addtoorder').get(userControllers.deleteall);
 // userRouter.route('/products').get(userRouteProtecter, userControllers.viewProduct);
@@ -20,8 +22,10 @@ export const userRouter = exp.Router();
 // userRouter.route('/products_Id/:id').get(userControllers.productById);
 
 //user_router
-userRouter.post('/signup', userImgUpload, userControllers.signUp)
+userRouter.post('/signup', userImgUpload, (userControllers.signUp))
     .post('/login', userControllers.logIn)
+    .get('/success', userControllers.succes)
+    .get('/cancel', userControllers.cancel)
     .use(userRouteProtecter)
     .post('/:id/cart', userControllers.addToCart)
     .get('/:id/cart', userControllers.viewCart)
@@ -29,8 +33,7 @@ userRouter.post('/signup', userImgUpload, userControllers.signUp)
     .get('/:id/wishlist', userControllers.viewWishlist)
     .post('/:id/deletewishlist', userControllers.deleteWishlistprdct)
     .post('/:id/payment', userControllers.userPayment)
-    .post('/:id/addtoorder', userControllers.addToOrder)
-    //products_router
+    // products_router
     .get('/products', userControllers.viewProduct)
     .get('/:id/category', userControllers.categorizedProducts)
     .get('/products_Id/:id', userControllers.productById)

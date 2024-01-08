@@ -9,7 +9,7 @@ const login = catchAsync(async (req: Request, res: Response, next: NextFunction)
     res.status(200).json({
         status: "Success",
         message: "Sir you are successfully logged in",
-        token: response
+        token: 'response'
     })
 })
 const users = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -31,11 +31,12 @@ const userById = catchAsync(async (req: Request, res: Response, next: NextFuncti
 
 })
 const addProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const products = await admin_srvc.addproduts(req, res, next);
+    const product: Product = req.body;
+    const products = await admin_srvc.addproduts(product, res, next);
     res.status(201).json({
         status: 'success',
         message: 'Successfully created a product.',
-        addedProduct: products
+        products : products
     })
 })
 const updateProduct = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

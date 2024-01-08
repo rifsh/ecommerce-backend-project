@@ -16,14 +16,18 @@ exports.userRouter = express_1.default.Router();
 // userRouter.route('/:id/wishlist').post(userControllers.addWishList);
 // userRouter.route('/:id/wishlist').get(userControllers.viewWishlist);
 // userRouter.route('/:id/deletewishlist').post(userControllers.deleteWishlistprdct);
+// userRouter.route('/:id/payment').post(userRouteProtecter,userControllers.userPayment);
+// userRouter.route('/success').get(userControllers.succes);
 // userRouter.route('/:id/addtoorder').post(userControllers.addToOrder);
 // userRouter.route('/addtoorder').get(userControllers.deleteall);
 // userRouter.route('/products').get(userRouteProtecter, userControllers.viewProduct);
 // userRouter.route('/:id/category').get(userControllers.categorizedProducts);
 // userRouter.route('/products_Id/:id').get(userControllers.productById);
 //user_router
-exports.userRouter.post('/signup', imageUpload_1.userImgUpload, auth_handler_1.userControllers.signUp)
+exports.userRouter.post('/signup', imageUpload_1.userImgUpload, (auth_handler_1.userControllers.signUp))
     .post('/login', auth_handler_1.userControllers.logIn)
+    .get('/success', auth_handler_1.userControllers.succes)
+    .get('/cancel', auth_handler_1.userControllers.cancel)
     .use(routeProtector_1.userRouteProtecter)
     .post('/:id/cart', auth_handler_1.userControllers.addToCart)
     .get('/:id/cart', auth_handler_1.userControllers.viewCart)
@@ -31,8 +35,7 @@ exports.userRouter.post('/signup', imageUpload_1.userImgUpload, auth_handler_1.u
     .get('/:id/wishlist', auth_handler_1.userControllers.viewWishlist)
     .post('/:id/deletewishlist', auth_handler_1.userControllers.deleteWishlistprdct)
     .post('/:id/payment', auth_handler_1.userControllers.userPayment)
-    .post('/:id/addtoorder', auth_handler_1.userControllers.addToOrder)
-    //products_router
+    // products_router
     .get('/products', auth_handler_1.userControllers.viewProduct)
     .get('/:id/category', auth_handler_1.userControllers.categorizedProducts)
     .get('/products_Id/:id', auth_handler_1.userControllers.productById);

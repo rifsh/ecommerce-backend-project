@@ -29,7 +29,7 @@ exports.userRouteProtecter = (0, asyncHandler_1.default)((req, res, next) => __a
         token = sampleToken[1];
     }
     if (!token) {
-        next(new customerror_1.customeError('You are not logged in !!', 402));
+        next(new customerror_1.CustomeError('You are not logged in !!', 402));
     }
     //Validate the token
     const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
@@ -37,7 +37,7 @@ exports.userRouteProtecter = (0, asyncHandler_1.default)((req, res, next) => __a
     //If the user exist
     let user = yield usermodel_1.Users.findById(tokenDec.id);
     if (!user) {
-        next(new customerror_1.customeError('User is not present', 401));
+        next(new customerror_1.CustomeError('User is not present', 401));
     }
     next();
 }));
@@ -45,19 +45,19 @@ exports.adminRouteProtecter = (0, asyncHandler_1.default)((req, res, next) => __
     let token;
     const headerToken = req.headers.authorization;
     if (!headerToken) {
-        next(new customerror_1.customeError('Please provide a token', 401));
+        next(new customerror_1.CustomeError('Please provide a token', 401));
     }
     if (headerToken && headerToken.toLowerCase().startsWith('bearer')) {
         token = headerToken.split(' ')[1];
     }
     if (!token) {
-        next(new customerror_1.customeError('You are not logged in !!', 402));
+        next(new customerror_1.CustomeError('You are not logged in !!', 402));
     }
     const tokenDecode = yield jsonwebtoken_1.default.verify(token, process.env.jwt_string);
     const tokenDec = tokenDecode;
     const admin = process.env.ADMIN_USRNAME === tokenDec.name;
     if (!admin) {
-        next(new customerror_1.customeError('Admin is not present', 401));
+        next(new customerror_1.CustomeError('Admin is not present', 401));
     }
     next();
 }));

@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema<userInterface>({
         required: [true, 'email is required'],
         validate: [validator.isEmail, 'Please enter a valid email']
     },
-    profileImg: {
+    image: {
         type: String,
         required: [true, 'Image is required']
     },

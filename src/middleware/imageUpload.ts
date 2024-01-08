@@ -4,13 +4,13 @@ import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import path from 'path';
-import { customeError } from '../utils/customerror';
+import { CustomeError } from '../utils/customerror';
 
 dotenv.config({ path: path.join(__dirname, '../../config.env') });
 
 
 const storage = multer.diskStorage({
-    destination: path.join(__dirname, '../upload'),
+    destination: '../uploads',
     filename: (req, file, cb) => {
         cb(null, Date.now() + file.originalname)
     }
@@ -31,29 +31,30 @@ cloudin.config({
 
 export const imgUpload = (req: Request, res: Response, next: NextFunction) => {
     upload.single("image")(req, res, async (err) => {
+        const file = req.file;
         if (err) {
-            next(new customeError('Not uplaoded', 401));
+            next(new CustomeError('Not uplaoded', 401));
         }
         try {
             const result = await cloudin.uploader.upload(req.file.path, {
                 folder: "products"
             })
             req.body.image = result.secure_url;
-            fs.unlink(req.file.path, (unlinker) => {
-                if (unlinker) {
-                    console.log('Error, deleting local file', unlinker);
-                }
-            })
+            // fs.unlink(req.file.path, (unlinker) => {
+            //     if (unlinker) {
+            //         console.log('Error, deleting local file', unlinker);
+            //     }
+            // })
             next()
         } catch (error) {
-            next(new customeError('Error uploading file to Cloudinary', 404));
+            next(new CustomeError('Error uploading products file to Cloudinary', 404));
         }
     })
 } 
 export const userImgUpload = (req: Request, res: Response, next: NextFunction) => {
     upload.single("profileImg")(req, res, async (err) => {
         if (err) {
-            next(new customeError('Not uplaoded', 401));
+            next(new CustomeError('Not uplaoded', 401));
         }
         try {
             const result = await cloudin.uploader.upload(req.file.path, {
@@ -67,7 +68,7 @@ export const userImgUpload = (req: Request, res: Response, next: NextFunction) =
             })
             next()
         } catch (error) {
-            next(new customeError('Error uploading file to Cloudinary', 404));
+            next(new CustomeError('Error uploading file to Cloudinary', 404));
         }
     })
 } 

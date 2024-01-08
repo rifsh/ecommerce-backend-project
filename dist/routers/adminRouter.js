@@ -7,7 +7,6 @@ exports.adminRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const auth_handler_1 = require("../controller/admin/auth-handler");
 const imageUpload_1 = require("../middleware/imageUpload");
-const routeProtector_1 = require("../middleware/routeProtector");
 exports.adminRouter = express_1.default.Router();
 // adminRouter.route('/login').post(adminController.login);
 // adminRouter.route('/users').get(adminRouteProtecter,adminController.users);
@@ -17,7 +16,7 @@ exports.adminRouter = express_1.default.Router();
 // adminRouter.route('/deleteproduct/:id').delete(adminRouteProtecter,adminController.deleteProduct);
 //admin_router
 exports.adminRouter.post('/login', auth_handler_1.adminController.login)
-    .use(routeProtector_1.adminRouteProtecter)
+    // .use(adminRouteProtecter)
     .get('/users', auth_handler_1.adminController.users)
     .get('/user/:id', auth_handler_1.adminController.userById)
     .post('/addproducts', imageUpload_1.imgUpload, auth_handler_1.adminController.addProduct)

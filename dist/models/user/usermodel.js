@@ -47,7 +47,7 @@ const userSchema = new mongoose_1.default.Schema({
         required: [true, 'email is required'],
         validate: [validator_1.default.isEmail, 'Please enter a valid email']
     },
-    profileImg: {
+    image: {
         type: String,
         required: [true, 'Image is required']
     },

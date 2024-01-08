@@ -1,8 +1,9 @@
 interface Product {
+    id: number,
     title: string,
+    image: string,
     description: string,
     price: number,
-    image: string,
     category: string,
-    isDeleted: boolean
+    author: string
 } 

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import userCartInterface from '../interfaces/user_interfaces/user_cart';
+import userCartInterface from '../../interfaces/user/user_cart';
 import { Users } from './usermodel';
 import { producModel } from '../productsmodel';
 

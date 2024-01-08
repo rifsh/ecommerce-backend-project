@@ -42,9 +42,11 @@ const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 const auth_controller_1 = require("../../services/user/auth-controller");
 const token_1 = require("../../utils/token");
 const orderModel_1 = require("../../models/user/orderModel");
+const customerror_1 = require("../../utils/customerror");
 dotenv.config({ path: path_1.default.join(__dirname, '../../config.env') });
-const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield auth_controller_1.userSrvc.signUp(req, res, next);
+const signUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userDatas = req.body;
+    const users = yield auth_controller_1.userSrvc.signUp(userDatas);
     const token = (0, token_1.userToken)();
     res.status(200).json({
         status: "Success",
@@ -55,10 +57,16 @@ const signUp = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0,
     });
 }));
 const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const logedValue = yield auth_controller_1.userSrvc.logIn(req, res, next);
+    const userName = req.body.username;
+    const password = req.body.password;
+    const logedValue = yield auth_controller_1.userSrvc.logIn(userName, password, next);
+    res.status(200).json({
+        status: "Valid",
+        token: logedValue
+    });
 }));
-const viewProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const products = yield auth_controller_1.userSrvc.products(req, res, next);
+const viewProduct = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const products = yield auth_controller_1.userSrvc.products();
     res.status(200).json({
         status: "OK",
         total_Products: products.length,
@@ -68,16 +76,33 @@ const viewProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(vo
     });
 }));
 const categorizedProducts = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const products = yield auth_controller_1.userSrvc.productByCategory(req, res, next);
+    const category = req.params.id;
+    const products = yield auth_controller_1.userSrvc.productByCategory(category, next);
+    res.status(200).json({
+        totalPrdoucts: products.length,
+        products
+    });
 }));
 const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    yield auth_controller_1.userSrvc.productById(req, res, next);
+    const productID = req.params.id;
+    yield auth_controller_1.userSrvc.productById(productID, next);
 }));
 const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const productId = req.body.productId;
+    const userId = req.params.id;
     auth_controller_1.userSrvc.addToCart(req, res, next);
 }));
 const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.viewCart(req, res, next);
+    const userId = req.params.id;
+    const carts = yield auth_controller_1.userSrvc.viewCart(userId);
+    if (carts) {
+        res.status(200).json({
+            carts
+        });
+    }
+    else {
+        next(new customerror_1.CustomeError("Cart is not found", 404));
+    }
 }));
 const addWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     auth_controller_1.userSrvc.addToWishList(req, res, next);
@@ -86,13 +111,26 @@ const viewWishlist = (0, asyncHandler_1.default)((req, res, next) => __awaiter(v
     auth_controller_1.userSrvc.viewWishList(req, res, next);
 }));
 const deleteWishlistprdct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.deleteWishList(req, res, next);
+    const id = req.params.id;
+    const prodcutId = req.body.productId;
+    const deleted = yield auth_controller_1.userSrvc.deleteWishList(id, prodcutId, next);
+    if (deleted) {
+        res.status(200).json({
+            Message: "Delted successfully"
+        });
+    }
+    else {
+        next(new customerror_1.CustomeError("Something send wrong", 401));
+    }
 }));
 const userPayment = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const payment = yield auth_controller_1.userSrvc.payment(req, res, next);
 }));
-const addToOrder = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.addToOrder(req, res, next);
+const succes = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send("Success");
+}));
+const cancel = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send("Denied");
 }));
 const deleteall = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     yield orderModel_1.orderModel.deleteMany();
@@ -109,6 +147,7 @@ exports.userControllers = {
     viewWishlist,
     deleteWishlistprdct,
     userPayment,
-    addToOrder,
+    succes,
+    cancel,
     deleteall
 };

@@ -1,7 +1,7 @@
 import { JwtPayload } from "jsonwebtoken";
 import dotenv from 'dotenv'
 import jwt from "jsonwebtoken";
-import { customeError } from "../utils/customerror";
+import { CustomeError } from "../utils/customerror";
 import { NextFunction, Request, Response } from "express";
 import { Users } from "../models/user/usermodel";
 import path from "path";
@@ -19,7 +19,7 @@ export const userRouteProtecter = catchAsync(async (req: Request, res: Response,
     }
 
     if (!token) {
-        next(new customeError('You are not logged in !!', 402));
+        next(new CustomeError('You are not logged in !!', 402));
     }
 
     //Validate the token
@@ -29,7 +29,7 @@ export const userRouteProtecter = catchAsync(async (req: Request, res: Response,
     let user = await Users.findById(tokenDec.id);
     
     if (!user) {
-        next(new customeError('User is not present', 401));
+        next(new CustomeError('User is not present', 401));
     }
 
     next();
@@ -39,20 +39,20 @@ export const adminRouteProtecter = catchAsync(async (req: Request, res: Response
     
     const headerToken = req.headers.authorization;
     if (!headerToken) {
-        next(new customeError('Please provide a token', 401));
+        next(new CustomeError('Please provide a token', 401));
     }
     if (headerToken && headerToken.toLowerCase().startsWith('bearer')) {
         token = headerToken.split(' ')[1]
     }
     if (!token) {
-        next(new customeError('You are not logged in !!', 402));
+        next(new CustomeError('You are not logged in !!', 402));
     }
     const tokenDecode= await jwt.verify(token, process.env.jwt_string);
     const tokenDec = tokenDecode as JwtPayload;
 
     const admin = process.env.ADMIN_USRNAME === tokenDec.name;
     if (!admin) {
-        next(new customeError('Admin is not present', 401));
+        next(new CustomeError('Admin is not present', 401));
     }
     next()
 })

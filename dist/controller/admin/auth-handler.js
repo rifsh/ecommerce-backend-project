@@ -20,7 +20,7 @@ const login = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, 
     res.status(200).json({
         status: "Success",
         message: "Sir you are successfully logged in",
-        token: response
+        token: 'response'
     });
 }));
 const users = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -39,11 +39,12 @@ const userById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 
     });
 }));
 const addProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const products = yield auth_controller_1.admin_srvc.addproduts(req, res, next);
+    const product = req.body;
+    const products = yield auth_controller_1.admin_srvc.addproduts(product, res, next);
     res.status(201).json({
         status: 'success',
         message: 'Successfully created a product.',
-        addedProduct: products
+        products: products
     });
 }));
 const updateProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {

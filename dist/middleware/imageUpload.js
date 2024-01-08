@@ -21,7 +21,7 @@ const path_1 = __importDefault(require("path"));
 const customerror_1 = require("../utils/customerror");
 dotenv_1.default.config({ path: path_1.default.join(__dirname, '../../config.env') });
 const storage = multer_1.default.diskStorage({
-    destination: path_1.default.join(__dirname, '../upload'),
+    destination: '../uploads',
     filename: (req, file, cb) => {
         cb(null, Date.now() + file.originalname);
     }
@@ -38,23 +38,24 @@ cloudin.config({
 });
 const imgUpload = (req, res, next) => {
     upload.single("image")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
+        const file = req.file;
         if (err) {
-            next(new customerror_1.customeError('Not uplaoded', 401));
+            next(new customerror_1.CustomeError('Not uplaoded', 401));
         }
         try {
             const result = yield cloudin.uploader.upload(req.file.path, {
                 folder: "products"
             });
             req.body.image = result.secure_url;
-            fs_1.default.unlink(req.file.path, (unlinker) => {
-                if (unlinker) {
-                    console.log('Error, deleting local file', unlinker);
-                }
-            });
+            // fs.unlink(req.file.path, (unlinker) => {
+            //     if (unlinker) {
+            //         console.log('Error, deleting local file', unlinker);
+            //     }
+            // })
             next();
         }
         catch (error) {
-            next(new customerror_1.customeError('Error uploading file to Cloudinary', 404));
+            next(new customerror_1.CustomeError('Error uploading products file to Cloudinary', 404));
         }
     }));
 };
@@ -62,7 +63,7 @@ exports.imgUpload = imgUpload;
 const userImgUpload = (req, res, next) => {
     upload.single("profileImg")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
-            next(new customerror_1.customeError('Not uplaoded', 401));
+            next(new customerror_1.CustomeError('Not uplaoded', 401));
         }
         try {
             const result = yield cloudin.uploader.upload(req.file.path, {
@@ -77,7 +78,7 @@ const userImgUpload = (req, res, next) => {
             next();
         }
         catch (error) {
-            next(new customerror_1.customeError('Error uploading file to Cloudinary', 404));
+            next(new customerror_1.CustomeError('Error uploading file to Cloudinary', 404));
         }
     }));
 };

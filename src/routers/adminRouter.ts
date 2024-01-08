@@ -16,7 +16,7 @@ export const adminRouter = exp.Router();
 
 //admin_router
 adminRouter.post('/login', adminController.login)
-    .use(adminRouteProtecter)
+    // .use(adminRouteProtecter)
     .get('/users', adminController.users)
     .get('/user/:id', adminController.userById)
     .post('/addproducts', imgUpload, adminController.addProduct)

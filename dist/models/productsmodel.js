@@ -9,6 +9,11 @@ function required(result) {
     return `${result} is a required field`;
 }
 const productSchema = new mongoose_1.default.Schema({
+    id: {
+        type: Number,
+        required: [true, required('Id')],
+        unique: true
+    },
     title: {
         type: String,
         required: [true, required('Title')],
@@ -25,6 +30,10 @@ const productSchema = new mongoose_1.default.Schema({
     image: {
         type: String,
         required: [true, required('Image')]
+    },
+    author: {
+        type: String,
+        required: [true, required('Author')]
     },
     category: {
         type: String,

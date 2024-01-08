@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.customeError = void 0;
-class customeError extends Error {
+exports.CustomeError = void 0;
+class CustomeError extends Error {
     constructor(message, statusCode) {
         super(message);
         this.statusCode = statusCode;
@@ -10,4 +10,4 @@ class customeError extends Error {
         Error.captureStackTrace(this, this.constructor);
     }
 }
-exports.customeError = customeError;
+exports.CustomeError = CustomeError;
