@@ -16,10 +16,12 @@ export const adminRouter = exp.Router();
 
 //admin_router
 adminRouter.post('/login', adminController.login)
-    // .use(adminRouteProtecter)
+    .use(adminRouteProtecter)
     .get('/users', adminController.users)
     .get('/user/:id', adminController.userById)
+    .get('/products', adminController.viewProducts)
+    .get('/productbyid/:id',adminController.singleProduct)
     .post('/addproducts', imgUpload, adminController.addProduct)
-    .patch('/updateproduct/:id', adminController.updateProduct)
+    .patch('/updateproduct/:id', imgUpload, adminController.updateProduct)
     .delete('/deleteproduct/:id', adminController.deleteProduct)
 

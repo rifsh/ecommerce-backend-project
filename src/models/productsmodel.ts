@@ -5,11 +5,6 @@ function required(result: string): string {
 }
 
 const productSchema = new mongoose.Schema<Product>({
-    id:{
-        type: Number,
-        required: [true, required('Id')],
-        unique: true
-    },
     title:{
         type: String,
         required: [true, required('Title')],

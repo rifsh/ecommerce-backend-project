@@ -29,22 +29,23 @@ cloudin.config({
     api_secret: process.env.API_SECRET
 })
 
-export const imgUpload = (req: Request, res: Response, next: NextFunction) => {
+export const imgUpload = async(req: Request, res: Response, next: NextFunction) => {
     upload.single("image")(req, res, async (err) => {
-        const file = req.file;
+        // const file = req.file;
+        // console.log(req.file);
         if (err) {
-            next(new CustomeError('Not uplaoded', 401));
+            next(new CustomeError(err.message, 401));
         }
         try {
             const result = await cloudin.uploader.upload(req.file.path, {
                 folder: "products"
             })
             req.body.image = result.secure_url;
-            // fs.unlink(req.file.path, (unlinker) => {
-            //     if (unlinker) {
-            //         console.log('Error, deleting local file', unlinker);
-            //     }
-            // })
+            fs.unlink(req.file.path, (unlinker) => {
+                if (unlinker) {
+                    console.log('Error, deleting local file', unlinker);
+                }
+            })
             next()
         } catch (error) {
             next(new CustomeError('Error uploading products file to Cloudinary', 404));

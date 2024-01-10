@@ -43,6 +43,7 @@ const auth_controller_1 = require("../../services/user/auth-controller");
 const token_1 = require("../../utils/token");
 const orderModel_1 = require("../../models/user/orderModel");
 const customerror_1 = require("../../utils/customerror");
+const usermodel_1 = require("../../models/user/usermodel");
 dotenv.config({ path: path_1.default.join(__dirname, '../../config.env') });
 const signUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const userDatas = req.body;
@@ -59,10 +60,13 @@ const signUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 
 const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userName = req.body.username;
     const password = req.body.password;
+    console.log(userName);
+    const userDetails = yield usermodel_1.Users.findOne({ usrname: userName });
     const logedValue = yield auth_controller_1.userSrvc.logIn(userName, password, next);
     res.status(200).json({
         status: "Valid",
-        token: logedValue
+        token: logedValue,
+        user: userDetails
     });
 }));
 const viewProduct = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -70,9 +74,7 @@ const viewProduct = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, 
     res.status(200).json({
         status: "OK",
         total_Products: products.length,
-        datas: {
-            products
-        }
+        datas: products
     });
 }));
 const categorizedProducts = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -80,12 +82,16 @@ const categorizedProducts = (0, asyncHandler_1.default)((req, res, next) => __aw
     const products = yield auth_controller_1.userSrvc.productByCategory(category, next);
     res.status(200).json({
         totalPrdoucts: products.length,
-        products
+        datas: products
     });
 }));
 const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productID = req.params.id;
-    yield auth_controller_1.userSrvc.productById(productID, next);
+    const products = yield auth_controller_1.userSrvc.productById(productID, next);
+    res.status(200).json({
+        id: productID,
+        datas: products
+    });
 }));
 const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.body.productId;

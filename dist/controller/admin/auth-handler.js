@@ -19,15 +19,16 @@ const login = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, 
     const response = yield auth_controller_1.admin_srvc.login(req, res, next);
     res.status(200).json({
         status: "Success",
+        name: process.env.ADMIN_USRNAME,
         message: "Sir you are successfully logged in",
-        token: 'response'
+        token: response
     });
 }));
 const users = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const users = yield auth_controller_1.admin_srvc.userFinding(req, res, next);
     res.status(200).json({
         totalUsers: users.length,
-        users
+        datas: users
     });
 }));
 const userById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -38,9 +39,29 @@ const userById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 
         data: user
     });
 }));
+const viewProducts = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const prdcts = yield auth_controller_1.admin_srvc.allProducts();
+    if (!prdcts) {
+        res.status(200).json({
+            Message: "Empty"
+        });
+    }
+    res.status(200).json({
+        totalProducts: prdcts.length,
+        datas: prdcts
+    });
+}));
+const singleProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const productId = req.params.id;
+    const products = yield auth_controller_1.admin_srvc.productsById(productId);
+    res.status(200).json({
+        datas: products
+    });
+}));
 const addProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const product = req.body;
-    const products = yield auth_controller_1.admin_srvc.addproduts(product, res, next);
+    console.log(product);
+    const products = yield auth_controller_1.admin_srvc.addproduts(product);
     res.status(201).json({
         status: 'success',
         message: 'Successfully created a product.',
@@ -48,7 +69,9 @@ const addProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(voi
     });
 }));
 const updateProduct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = yield auth_controller_1.admin_srvc.updateProducts(req, res, next);
+    const products = req.body;
+    const prdctId = req.params.id;
+    const id = yield auth_controller_1.admin_srvc.updateProducts(prdctId, products, next);
     res.json({
         status: 'success',
         message: `Successfully updated a product with id '${id}'`,
@@ -61,6 +84,8 @@ exports.adminController = {
     login,
     users,
     userById,
+    viewProducts,
+    singleProduct,
     addProduct,
     updateProduct,
     deleteProduct

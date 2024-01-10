@@ -36,29 +36,30 @@ cloudin.config({
     api_key: process.env.API_KEY,
     api_secret: process.env.API_SECRET
 });
-const imgUpload = (req, res, next) => {
+const imgUpload = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     upload.single("image")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
-        const file = req.file;
+        // const file = req.file;
+        // console.log(req.file);
         if (err) {
-            next(new customerror_1.CustomeError('Not uplaoded', 401));
+            next(new customerror_1.CustomeError(err.message, 401));
         }
         try {
             const result = yield cloudin.uploader.upload(req.file.path, {
                 folder: "products"
             });
             req.body.image = result.secure_url;
-            // fs.unlink(req.file.path, (unlinker) => {
-            //     if (unlinker) {
-            //         console.log('Error, deleting local file', unlinker);
-            //     }
-            // })
+            fs_1.default.unlink(req.file.path, (unlinker) => {
+                if (unlinker) {
+                    console.log('Error, deleting local file', unlinker);
+                }
+            });
             next();
         }
         catch (error) {
             next(new customerror_1.CustomeError('Error uploading products file to Cloudinary', 404));
         }
     }));
-};
+});
 exports.imgUpload = imgUpload;
 const userImgUpload = (req, res, next) => {
     upload.single("profileImg")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {

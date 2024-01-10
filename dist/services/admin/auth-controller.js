@@ -55,19 +55,24 @@ const userById = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         return users;
     }
 });
-const addproduts = (product, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const allProducts = () => __awaiter(void 0, void 0, void 0, function* () {
+    return yield productsmodel_1.producModel.find();
+});
+const productsById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    return productsmodel_1.producModel.findById(id);
+});
+const addproduts = (product) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(product);
     const createdProduct = yield productsmodel_1.producModel.create(product);
     return createdProduct;
 });
-const updateProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    const { title, image, description, price, category } = req.body;
+const updateProducts = (id, prodcut, next) => __awaiter(void 0, void 0, void 0, function* () {
     const product = yield productsmodel_1.producModel.findById(id);
     if (!product) {
         next(new customerror_1.CustomeError(`No such product found with id ${id}`, 404));
     }
     else {
-        const updateProduct = yield product.updateOne({ title, image, description, price, category });
+        const updateProduct = yield product.updateOne(prodcut);
         product.save();
         return id;
     }
@@ -92,6 +97,8 @@ exports.admin_srvc = {
     token: token_1.adminToken,
     userFinding,
     userById,
+    allProducts,
+    productsById,
     addproduts,
     updateProducts,
     deleteProduct

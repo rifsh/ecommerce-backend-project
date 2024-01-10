@@ -42,20 +42,27 @@ const userById = async (req: Request, res: Response, next: NextFunction) => {
         return users;
     }
 }
-const addproduts = async (product:Product, res: Response, next: NextFunction) => {
-    
+const allProducts = async () => {
+    return await producModel.find()
+}
+const productsById = async(id: string) => {
+    return producModel.findById(id);    
+}
+const addproduts = async (product: Product) => {
+    console.log(product);
+
     const createdProduct = await producModel.create(product);
     return createdProduct
 }
-const updateProducts = async (req: Request, res: Response, next: NextFunction) => {
-    const id: string = req.params.id;
-    const { title, image, description, price, category } = req.body;
+const updateProducts = async (id: string, prodcut: Product, next: NextFunction) => {
     const product = await producModel.findById(id);
+
     if (!product) {
         next(new CustomeError(`No such product found with id ${id}`, 404))
     } else {
-        const updateProduct = await product.updateOne({ title, image, description, price, category });
+        const updateProduct = await product.updateOne(prodcut);
         product.save();
+
         return id
     }
 }
@@ -82,6 +89,8 @@ export const admin_srvc = {
     token: adminToken,
     userFinding,
     userById,
+    allProducts,
+    productsById,
     addproduts,
     updateProducts,
     deleteProduct
