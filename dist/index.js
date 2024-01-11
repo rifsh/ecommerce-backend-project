@@ -10,7 +10,7 @@ const userRouter_1 = require("./routers/userRouter");
 const adminRouter_1 = require("./routers/adminRouter");
 const customerror_1 = require("./utils/customerror");
 const app = (0, express_1.default)();
-app.use(body_parser_1.default.urlencoded({ extended: false }));
+// app.use(bodyparser);
 app.use(body_parser_1.default.json());
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());

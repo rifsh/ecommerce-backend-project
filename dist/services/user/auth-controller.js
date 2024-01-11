@@ -59,13 +59,17 @@ const productById = (productId, next) => __awaiter(void 0, void 0, void 0, funct
         return products;
     }
 });
-const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const productId = req.body.productId;
-    const userId = req.params.id;
+const addToCart = (productId, userId, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userFinding = yield usermodel_1.Users.findById(userId);
     const product = yield productsmodel_1.producModel.findById(productId);
     const existingUser = yield cartModel_1.CartModel.findOne({ userId: userId });
     const existingProduct = yield cartModel_1.CartModel.findOne({ userId: userId, products: productId });
+    if (existingProduct) {
+        res.status(200).json({
+            status: "Success",
+            message: "Product is already present in the cart"
+        });
+    }
     if (!product || !userFinding) {
         next(new customerror_1.CustomeError("Product or User not found in the db", 404));
     }
@@ -75,7 +79,9 @@ const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             yield existingUser.save();
             res.status(200).json({
                 status: "Success",
-                message: "Your product is added to cart"
+                message: "Your product is added to cart",
+                cart: existingUser,
+                totalProducts: existingUser.products.length
             });
         }
         else if (!existingUser) {
@@ -83,21 +89,36 @@ const addToCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId] });
             res.status(200).json({
                 status: "Success",
-                message: "Your product is added to cart"
+                message: "Your product is added to cart",
+                cart: addingCart,
+                totalProducts: addingCart.products.length
             });
-        }
-        else if (existingProduct) {
-            next(new customerror_1.CustomeError('product is already in cart', 404));
         }
     }
 });
 const viewCart = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const viewCart = yield cartModel_1.CartModel.findOne({ userId: userId });
-    return viewCart;
+    const productId = viewCart.products;
+    const products = yield productsmodel_1.producModel.find({ _id: productId });
+    return products;
 });
-const addToWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const productId = req.body.productId;
-    const userId = req.params.id;
+const deleteCart = (id, prdctId, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const productFinding = yield cartModel_1.CartModel.findOne({ userId: id, products: prdctId });
+    const checkUser = yield cartModel_1.CartModel.findOne({ userId: id });
+    if (checkUser && productFinding) {
+        const index = yield checkUser.products.indexOf(prdctId);
+        yield checkUser.products.splice(index, 1);
+        yield checkUser.save();
+        return checkUser;
+    }
+    else if (!productFinding) {
+        next(new customerror_1.CustomeError(`Product not found with id ${prdctId}`, 404));
+    }
+    else if (!checkUser) {
+        next(new customerror_1.CustomeError(`User not found with id ${id}`, 404));
+    }
+});
+const addToWishList = (productId, userId, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const prodcut = yield productsmodel_1.producModel.findById(productId);
     const existingUser = yield wishlistModel_1.wishListModel.findOne({ userId: userId });
     const existingProduct = yield wishlistModel_1.wishListModel.findOne({ userId: userId, wishlistedproducts: productId });
@@ -121,8 +142,7 @@ const addToWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         next(new customerror_1.CustomeError('product is already in Wishlist', 404));
     }
 });
-const viewWishList = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = req.params.id;
+const viewWishList = (userId, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const wishlist = yield wishlistModel_1.wishListModel.findOne({ userId });
     if (wishlist) {
         res.status(200).json({
@@ -163,6 +183,7 @@ exports.userSrvc = {
     productById,
     addToCart,
     viewCart,
+    deleteCart,
     addToWishList,
     viewWishList,
     deleteWishList,

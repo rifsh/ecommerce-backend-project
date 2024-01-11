@@ -60,7 +60,6 @@ const signUp = (0, asyncHandler_1.default)((req, res) => __awaiter(void 0, void 
 const logIn = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userName = req.body.username;
     const password = req.body.password;
-    console.log(userName);
     const userDetails = yield usermodel_1.Users.findOne({ usrname: userName });
     const logedValue = yield auth_controller_1.userSrvc.logIn(userName, password, next);
     res.status(200).json({
@@ -96,25 +95,43 @@ const productById = (0, asyncHandler_1.default)((req, res, next) => __awaiter(vo
 const addToCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const productId = req.body.productId;
     const userId = req.params.id;
-    auth_controller_1.userSrvc.addToCart(req, res, next);
+    auth_controller_1.userSrvc.addToCart(productId, userId, res, next);
 }));
 const viewCart = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.params.id;
     const carts = yield auth_controller_1.userSrvc.viewCart(userId);
     if (carts) {
         res.status(200).json({
-            carts
+            totalProducts: carts.length,
+            datas: carts
         });
     }
     else {
         next(new customerror_1.CustomeError("Cart is not found", 404));
     }
 }));
+const deleteCartItems = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    const prodcutId = req.body.productId;
+    const deletedProduct = yield auth_controller_1.userSrvc.deleteCart(id, prodcutId, next);
+    if (deletedProduct) {
+        res.status(200).json({
+            status: "OK",
+            message: "Deleted successfully",
+        });
+    }
+    else {
+        next(new customerror_1.CustomeError("Something send wrong", 401));
+    }
+}));
 const addWishList = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.addToWishList(req, res, next);
+    const productId = req.body.productId;
+    const userId = req.params.id;
+    auth_controller_1.userSrvc.addToWishList(productId, userId, res, next);
 }));
 const viewWishlist = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    auth_controller_1.userSrvc.viewWishList(req, res, next);
+    const userId = req.params.id;
+    auth_controller_1.userSrvc.viewWishList(userId, res, next);
 }));
 const deleteWishlistprdct = (0, asyncHandler_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
@@ -149,6 +166,7 @@ exports.userControllers = {
     productById,
     addToCart,
     viewCart,
+    deleteCartItems,
     addWishList,
     viewWishlist,
     deleteWishlistprdct,

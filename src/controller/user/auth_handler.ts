@@ -13,7 +13,7 @@ import { Users } from '../../models/user/usermodel';
 dotenv.config({ path: path.join(__dirname, '../../config.env') });
 
 const signUp = catchAsync(async (req: Request, res: Response) => {
-    const userDatas:Usersignup = req.body;
+    const userDatas: Usersignup = req.body;
     const users = await userSrvc.signUp(userDatas);
     const token = userToken();
     res.status(200).json({
@@ -28,9 +28,7 @@ const signUp = catchAsync(async (req: Request, res: Response) => {
 const logIn = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userName: string = req.body.username;
     const password: string = req.body.password;
-    console.log(userName);
-    
-    const userDetails = await Users.findOne({usrname: userName});    
+    const userDetails = await Users.findOne({ usrname: userName });
     const logedValue = await userSrvc.logIn(userName, password, next);
     res.status(200).json({
         status: "Valid",
@@ -61,43 +59,62 @@ const productById = catchAsync(async (req: Request, res: Response, next: NextFun
     const productID: string = req.params.id;
     const products = await userSrvc.productById(productID, next);
     res.status(200).json({
-        id:productID,
+        id: productID,
         datas: products
     })
 })
 const addToCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const productId: ObjectId = req.body.productId;
     const userId: string = req.params.id;
-    userSrvc.addToCart(req, res, next)
+    userSrvc.addToCart(productId, userId, res, next)
 })
 const viewCart = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const userId: string = req.params.id
     const carts = await userSrvc.viewCart(userId);
+
     if (carts) {
         res.status(200).json({
-            carts
+            totalProducts: carts.length,
+            datas: carts
         })
     } else {
         next(new CustomeError("Cart is not found", 404));
     }
 })
+const deleteCartItems = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const id: string = req.params.id;
+    const prodcutId: ObjectId = req.body.productId;
+    const deletedProduct = await userSrvc.deleteCart(id, prodcutId, next);
+    if (deletedProduct) {
+        res.status(200).json({
+            status: "OK",
+            message: "Deleted successfully",
+
+        })
+    } else {
+        next(new CustomeError("Something send wrong", 401));
+    }
+})
 const addWishList = catchAsync(async (req: Request, res: Response, next) => {
-    userSrvc.addToWishList(req, res, next)
+    const productId: ObjectId = req.body.productId;
+    const userId: string = req.params.id;
+    userSrvc.addToWishList(productId, userId, res, next)
 })
 const viewWishlist = catchAsync(async (req: Request, res: Response, next) => {
-    userSrvc.viewWishList(req, res, next)
+    const userId: string = req.params.id;
+    userSrvc.viewWishList(userId, res, next)
 })
 const deleteWishlistprdct = catchAsync(async (req: Request, res: Response, next) => {
     const id: string = req.params.id;
-    const prodcutId:ObjectId = req.body.productId;
-        const deleted = await userSrvc.deleteWishList(id, prodcutId, next);
-        if (deleted) {
-            res.status(200).json({
-                Message:"Delted successfully"
-            })
-        }else{
-            next(new CustomeError("Something send wrong",401));
-        }
+    const prodcutId: ObjectId = req.body.productId;
+    const deleted = await userSrvc.deleteWishList(id, prodcutId, next);
+    if (deleted) {
+        res.status(200).json({
+            Message: "Delted successfully"
+        })
+    } else {
+        next(new CustomeError("Something send wrong", 401));
+    }
 })
 const userPayment = catchAsync(async (req: Request, res: Response, next) => {
     const payment = await userSrvc.payment(req, res, next);
@@ -126,6 +143,7 @@ export const userControllers = {
     productById,
     addToCart,
     viewCart,
+    deleteCartItems,
     addWishList,
     viewWishlist,
     deleteWishlistprdct,

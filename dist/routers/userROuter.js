@@ -28,14 +28,15 @@ exports.userRouter.post('/signup', imageUpload_1.userImgUpload, (auth_handler_1.
     .post('/login', auth_handler_1.userControllers.logIn)
     .get('/success', auth_handler_1.userControllers.succes)
     .get('/cancel', auth_handler_1.userControllers.cancel)
+    .get('/products', auth_handler_1.userControllers.viewProduct)
     .use(routeProtector_1.userRouteProtecter)
     .post('/:id/cart', auth_handler_1.userControllers.addToCart)
     .get('/:id/cart', auth_handler_1.userControllers.viewCart)
+    .post('/:id/deletecart', auth_handler_1.userControllers.deleteCartItems)
     .post('/:id/wishlist', auth_handler_1.userControllers.addWishList)
     .get('/:id/wishlist', auth_handler_1.userControllers.viewWishlist)
     .post('/:id/deletewishlist', auth_handler_1.userControllers.deleteWishlistprdct)
     .post('/:id/payment', auth_handler_1.userControllers.userPayment)
     // products_router
-    .get('/products', auth_handler_1.userControllers.viewProduct)
     .get('/:id/category', auth_handler_1.userControllers.categorizedProducts)
     .get('/products_Id/:id', auth_handler_1.userControllers.productById);

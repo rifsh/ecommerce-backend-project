@@ -39,7 +39,7 @@ const products = async () => {
     products = await producModel.find({});
     return products
 }
-const productByCategory = async (category: string, next: NextFunction) => {
+const productByCategory = async (category: string, next: NextFunction): Promise<Product[]> => {
     const categorizedProduts = await producModel.find({ category: category });
 
     if (categorizedProduts.length === 0) {
@@ -49,22 +49,27 @@ const productByCategory = async (category: string, next: NextFunction) => {
     }
 
 }
-const productById = async (productId:string, next: NextFunction) => {
+const productById = async (productId: string, next: NextFunction): Promise<Product[]> => {
     let products: Product[] = [];
     products = await producModel.findById(productId);
     if (!products) {
         next(new CustomeError(`Product not found eith given Id '${productId}'!!`, 404))
     } else {
-       return products
+        return products
     }
 }
-const addToCart = async (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.body.productId;
-    const userId = req.params.id;
+const addToCart = async (productId: ObjectId, userId: string, res: Response, next: NextFunction) => {
     const userFinding = await Users.findById(userId);
     const product = await producModel.findById(productId);
     const existingUser = await CartModel.findOne({ userId: userId });
     const existingProduct = await CartModel.findOne({ userId: userId, products: productId });
+
+    if (existingProduct) {
+        res.status(200).json({
+            status: "Success",
+            message: "Product is already present in the cart"
+        })
+    }
     if (!product || !userFinding) {
         next(new CustomeError("Product or User not found in the db", 404));
     } else {
@@ -73,28 +78,47 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
             await existingUser.save();
             res.status(200).json({
                 status: "Success",
-                message: "Your product is added to cart"
+                message: "Your product is added to cart",
+                cart: existingUser,
+                totalProducts: existingUser.products.length
             })
         } else if (!existingUser) {
             //New user
             const addingCart = await CartModel.create({ userId: userId, products: [productId] });
             res.status(200).json({
                 status: "Success",
-                message: "Your product is added to cart"
+                message: "Your product is added to cart",
+                cart: addingCart,
+                totalProducts: addingCart.products.length
             })
-        } else if (existingProduct) {
-            next(new CustomeError('product is already in cart', 404))
         }
+
     }
 
 }
-const viewCart = async (userId: string):Promise<userCartInterface> => {
-    const viewCart = await CartModel.findOne({ userId:userId });
-    return viewCart
+const viewCart = async (userId: string): Promise<Product[]> => {
+    const viewCart = await CartModel.findOne({ userId: userId });
+    const productId = viewCart.products
+    const products = await producModel.find({ _id: productId });
+    return products
 }
-const addToWishList = async (req: Request, res: Response, next: NextFunction) => {
-    const productId = req.body.productId;
-    const userId = req.params.id;
+const deleteCart = async (id: string, prdctId: ObjectId, next:NextFunction) => {
+    const productFinding = await CartModel.findOne({ userId: id, products: prdctId });
+    const checkUser = await CartModel.findOne({ userId: id });
+    if (checkUser && productFinding) {
+        const index = await checkUser.products.indexOf(prdctId);
+        await checkUser.products.splice(index, 1);
+        await checkUser.save();
+        return checkUser
+    }
+    else if (!productFinding) {
+        next(new CustomeError(`Product not found with id ${prdctId}`, 404));
+    }
+    else if (!checkUser) {
+        next(new CustomeError(`User not found with id ${id}`, 404));
+    }
+}
+const addToWishList = async (productId: ObjectId, userId: string, res: Response, next: NextFunction) => {
     const prodcut = await producModel.findById(productId);
     const existingUser = await wishListModel.findOne({ userId: userId });
     const existingProduct = await wishListModel.findOne({ userId: userId, wishlistedproducts: productId });
@@ -117,10 +141,8 @@ const addToWishList = async (req: Request, res: Response, next: NextFunction) =>
         next(new CustomeError('product is already in Wishlist', 404))
     }
 }
-const viewWishList = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.params.id;
+const viewWishList = async (userId: string, res: Response, next: NextFunction) => {
     const wishlist = await wishListModel.findOne({ userId });
-
     if (wishlist) {
         res.status(200).json({
             wishlist
@@ -130,10 +152,9 @@ const viewWishList = async (req: Request, res: Response, next: NextFunction) => 
     }
 
 }
-const deleteWishList = async (id: string, prodcutId: ObjectId, next: NextFunction):Promise<wishlistInterface> => {
+const deleteWishList = async (id: string, prodcutId: ObjectId, next: NextFunction): Promise<wishlistInterface> => {
     const productFinding = await wishListModel.findOne({ userId: id, wishlistedproducts: prodcutId });
     const checkUser = await wishListModel.findOne({ userId: id });
-
     if (checkUser && productFinding) {
         const index = await checkUser.wishlistedproducts.indexOf(prodcutId);
         await checkUser.wishlistedproducts.splice(index, 1);
@@ -165,6 +186,7 @@ export const userSrvc = {
     productById,
     addToCart,
     viewCart,
+    deleteCart,
     addToWishList,
     viewWishList,
     deleteWishList,
