@@ -12,6 +12,7 @@ const wishListSchema = new mongoose_1.default.Schema({
     wishlistedproducts: [{
             type: mongoose_1.default.Schema.Types.ObjectId,
             required: [true, 'Please enter a valid productId']
-        }]
+        }],
+    totalPrice: Number
 });
 exports.wishListModel = mongoose_1.default.model('wishlist', wishListSchema);

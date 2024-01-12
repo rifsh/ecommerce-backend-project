@@ -59,6 +59,7 @@ const productById = async (productId: string, next: NextFunction): Promise<Produ
     }
 }
 const addToCart = async (productId: ObjectId, userId: string, res: Response, next: NextFunction) => {
+    let cartPrice: number;
     const userFinding = await Users.findById(userId);
     const product = await producModel.findById(productId);
     const existingUser = await CartModel.findOne({ userId: userId });
@@ -75,6 +76,7 @@ const addToCart = async (productId: ObjectId, userId: string, res: Response, nex
     } else {
         if (existingUser && !existingProduct) {
             existingUser.products.push(productId);
+            existingUser.totalPrice += product.price;
             await existingUser.save();
             res.status(200).json({
                 status: "Success",
@@ -84,7 +86,7 @@ const addToCart = async (productId: ObjectId, userId: string, res: Response, nex
             })
         } else if (!existingUser) {
             //New user
-            const addingCart = await CartModel.create({ userId: userId, products: [productId] });
+            const addingCart = await CartModel.create({ userId: userId, products: [productId], totalPrice: product.price });
             res.status(200).json({
                 status: "Success",
                 message: "Your product is added to cart",
@@ -102,13 +104,16 @@ const viewCart = async (userId: string): Promise<Product[]> => {
     const products = await producModel.find({ _id: productId });
     return products
 }
-const deleteCart = async (id: string, prdctId: ObjectId, next:NextFunction) => {
+const deleteCart = async (id: string, prdctId: ObjectId, next: NextFunction) => {
+    const product = await producModel.findById(prdctId);
     const productFinding = await CartModel.findOne({ userId: id, products: prdctId });
     const checkUser = await CartModel.findOne({ userId: id });
     if (checkUser && productFinding) {
         const index = await checkUser.products.indexOf(prdctId);
         await checkUser.products.splice(index, 1);
+        checkUser.totalPrice -= product.price;
         await checkUser.save();
+        
         return checkUser
     }
     else if (!productFinding) {

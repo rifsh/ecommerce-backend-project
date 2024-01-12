@@ -8,7 +8,8 @@ const wishListSchema = new mongoose.Schema({
     wishlistedproducts: [{
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'Please enter a valid productId']
-    }]
+    }],
+    totalPrice: Number
 
 })
 

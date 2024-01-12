@@ -27,6 +27,8 @@ userRouter.post('/signup', userImgUpload, (userControllers.signUp))
     .get('/success', userControllers.succes)
     .get('/cancel', userControllers.cancel)
     .get('/products', userControllers.viewProduct)
+    .get('/:id/category', userControllers.categorizedProducts)
+    .get('/products_Id/:id', userControllers.productById)
 
     .use(userRouteProtecter)
     .post('/:id/cart', userControllers.addToCart)
@@ -36,6 +38,4 @@ userRouter.post('/signup', userImgUpload, (userControllers.signUp))
     .get('/:id/wishlist', userControllers.viewWishlist)
     .post('/:id/deletewishlist', userControllers.deleteWishlistprdct)
     .post('/:id/payment', userControllers.userPayment)
-    // products_router
-    .get('/:id/category', userControllers.categorizedProducts)
-    .get('/products_Id/:id', userControllers.productById)
+// products_router

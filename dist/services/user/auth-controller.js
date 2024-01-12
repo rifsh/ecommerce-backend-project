@@ -60,6 +60,7 @@ const productById = (productId, next) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 const addToCart = (productId, userId, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let cartPrice;
     const userFinding = yield usermodel_1.Users.findById(userId);
     const product = yield productsmodel_1.producModel.findById(productId);
     const existingUser = yield cartModel_1.CartModel.findOne({ userId: userId });
@@ -76,6 +77,7 @@ const addToCart = (productId, userId, res, next) => __awaiter(void 0, void 0, vo
     else {
         if (existingUser && !existingProduct) {
             existingUser.products.push(productId);
+            existingUser.totalPrice += product.price;
             yield existingUser.save();
             res.status(200).json({
                 status: "Success",
@@ -86,7 +88,7 @@ const addToCart = (productId, userId, res, next) => __awaiter(void 0, void 0, vo
         }
         else if (!existingUser) {
             //New user
-            const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId] });
+            const addingCart = yield cartModel_1.CartModel.create({ userId: userId, products: [productId], totalPrice: product.price });
             res.status(200).json({
                 status: "Success",
                 message: "Your product is added to cart",
@@ -103,11 +105,13 @@ const viewCart = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     return products;
 });
 const deleteCart = (id, prdctId, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const product = yield productsmodel_1.producModel.findById(prdctId);
     const productFinding = yield cartModel_1.CartModel.findOne({ userId: id, products: prdctId });
     const checkUser = yield cartModel_1.CartModel.findOne({ userId: id });
     if (checkUser && productFinding) {
         const index = yield checkUser.products.indexOf(prdctId);
         yield checkUser.products.splice(index, 1);
+        checkUser.totalPrice -= product.price;
         yield checkUser.save();
         return checkUser;
     }

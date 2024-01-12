@@ -16,6 +16,7 @@ const cartSchema = new mongoose_1.default.Schema({
             type: mongoose_1.default.Schema.Types.ObjectId,
             required: [true, 'Please enter a valid productId'],
             ref: productsmodel_1.producModel
-        }]
+        }],
+    totalPrice: Number
 });
 exports.CartModel = mongoose_1.default.model('cart', cartSchema);

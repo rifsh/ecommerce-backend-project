@@ -12,7 +12,8 @@ const cartSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'Please enter a valid productId'],
         ref:producModel
-    }]
+    }],
+    totalPrice: Number
 
 })
 
